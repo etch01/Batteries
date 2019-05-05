@@ -23,7 +23,11 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.batteries.batteries"
+    },
+    "android": {
+      "package": "com.batteries.batteries"
     }
   }
 }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Image, Dimensions, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, Image, Dimensions, StatusBar, TouchableOpacity } from 'react-native';
 import {themeColor,login} from '../../assets/theme/themeSettings';
 const { height, width } = Dimensions.get("window");
 
@@ -14,8 +14,14 @@ export default class Type extends Component {
             <Text style={styles.smallText}>Please select your user.</Text>
         </View>
         <View style={styles.twoTypes}>
-            <Image style={styles.twoIcons} source={require('../../assets/images/user.png')}/>
+               <TouchableOpacity style={styles.image1Container}  onPress={()=>this.props.navigation.navigate("Products")}>
+               <Image style={styles.twoIcons} source={require('../../assets/images/user.png')}/>            
+
+               </TouchableOpacity>
+               <TouchableOpacity style={styles.image1Container}  onPress={()=>this.props.navigation.navigate("Products")}>
+
             <Image style={styles.twoIcons} source={require('../../assets/images/co.png')}/>
+            </TouchableOpacity>
         </View>
       </View>
     );
@@ -46,6 +52,11 @@ const styles = StyleSheet.create({
     smallText:{
         color:login.textColor,
     },
+    image1Container:{
+      width:"45%",
+      height:"45%",
+      flex:1,
+    },
     twoTypes:{
         alignItems:'center',
         height:height/2,
@@ -53,8 +64,8 @@ const styles = StyleSheet.create({
         marginTop:'5%'
     },
     twoIcons:{
-        width: "45%",
-        height: "45%",
+        width: "100%",
+        height: "100%",
         resizeMode: 'contain'
     },
 });

@@ -39,19 +39,23 @@ export default class Login extends Component {
         <View style={styles.form}>
           <Input
             placeholder="User Name"
-            leftIcon={{ type: "font-awesome", name: "user", color:login.iconColor,size:16 }}
+            leftIcon={{ type: "font-awesome", name: "user", color:login.iconColor,size:16 ,marginBottom:5}}
             labelStyle={{ color: login.textColor }}
+            leftIconContainerStyle={{justifyContent:"flex-end"}}
             inputStyle={styles.input}
             autoCapitalize="none"
+            inputContainerStyle={{borderBottomColor:login.inputBorderColor}}
             placeholderTextColor={login.textColor}
             />
             <Input
             placeholder="Password"
             secureTextEntry={true}
-            leftIcon={{ type: "font-awesome", name: "lock", color:login.iconColor,size:16  }}
+            leftIcon={{ type: "font-awesome", name: "lock", color:login.iconColor,size:16,marginBottom:5  }}
             labelStyle={{ color: login.textColor }}
+            leftIconContainerStyle={{justifyContent:"flex-end"}}
             inputStyle={styles.input}
             autoCapitalize="none"
+            inputContainerStyle={{borderBottomColor:login.inputBorderColor}}
             placeholderTextColor={login.textColor}
           />
           <TouchableOpacity style={{flexDirection:'row-reverse'}}><Text style={{marginRight:'4%',color:login.textColor,marginTop:'2%'}}>Forgot Password?</Text></TouchableOpacity>
@@ -70,7 +74,7 @@ export default class Login extends Component {
               }}
             />
           </View>
-          <Text style={{textAlign:'center',color:login.textColor}}>Already have an account?Sign up</Text>
+          <TouchableOpacity onPress={()=>this.props.navigation.navigate("SignUp")}><Text style={{textAlign:'center',color:login.textColor}}>Already have an account?Sign up</Text></TouchableOpacity>
 
         </View>
       </View>
