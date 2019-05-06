@@ -14,11 +14,11 @@ export default class Type extends Component {
             <Text style={styles.smallText}>Please select your user.</Text>
         </View>
         <View style={styles.twoTypes}>
-               <TouchableOpacity style={styles.image1Container}  onPress={()=>this.props.navigation.navigate("Products")}>
+               <TouchableOpacity style={styles.image1Container}  onPress={()=>this.props.navigation.navigate("SignUp",{type:'individual'})}>
                <Image style={styles.twoIcons} source={require('../../assets/images/user.png')}/>            
 
                </TouchableOpacity>
-               <TouchableOpacity style={styles.image1Container}  onPress={()=>this.props.navigation.navigate("Products")}>
+               <TouchableOpacity style={styles.image1Container}  onPress={()=>this.props.navigation.navigate("SignUp",{type:'company'})}>
 
             <Image style={styles.twoIcons} source={require('../../assets/images/co.png')}/>
             </TouchableOpacity>

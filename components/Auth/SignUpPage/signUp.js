@@ -73,7 +73,7 @@ export default class SignUp extends Component {
               confirmed: this.state.confirmed,
               admin:false,
               gender:this.state.gender,
-              type:this.state.type,
+              type:this.props.navigation.state.params.type==""||this.props.navigation.state.params.type==undefined?this.state.type:this.props.navigation.state.params.type,
               dateCreated:today,
             })
             .then(()=>{

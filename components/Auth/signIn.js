@@ -8,7 +8,9 @@ import {
   StatusBar,
   Dimensions
 } from "react-native";
+import * as firebase from 'firebase'
 import { themeColor, login } from "../../assets/theme/themeSettings";
+import Loading from '../Loading Page/loading';
 const { height, width } = Dimensions.get("window");
 
 import { Input, Button } from "react-native-elements";
@@ -16,10 +18,77 @@ import { Input, Button } from "react-native-elements";
 export default class Login extends Component {
   state = {
     name:'',
-    password:''
+    password:'',
+    loading: false
 };
 
+signInHandler(email, password) {
+  try {
+    if (this.state.email !== "" && this.state.password !== "") {
+      this.setState({ loading: true });
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(email, password)
+        .then(data => {
+          this.setState({loading:false});
+          this.props.navigation.navigate('Products');
+        })
+        .catch(error => {
+          var err = error.code;
+          if (err == "auth/user-disabled") {
+            alert("User has been banned.");
+          } else if (err == "auth/invalid-email") {
+            alert("email is not correct.");
+          } else if (err == "auth/user-not-found") {
+            alert("Email address doesn't exist.");
+          } else if (err == "auth/wrong-password") {
+            alert("Incorrect password.");
+          }
+          this.setState({ loading: false });
+        });
+    } else {
+      alert("email or password cannot be empty.");
+    }
+  } catch (error) {
+    console.log(error.code);
+  }
+}
+//Facebook Login
+// async loginWithFacebook() {
+//   //ENTER YOUR APP ID
+//   const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync(
+//     "353512445454546",
+//     { permissions: ["email"] }
+//   );
+//   if (type == "success") {
+//     const credential = firebase.auth.FacebookAuthProvider.credential(token);
+//     firebase
+//       .auth()
+//       .signInAndRetrieveDataWithCredential(credential)
+//       .then(() => {
+//         var user = firebase.auth().currentUser.uid;
+//         firebase
+//           .database()
+//           .ref("users/" + user)
+//           .on("value", snap => {
+//             if (snap.val() !== null) {
+//               this.setState({ loading: true });
+//               this.props.navigation.navigate("MainScreen");
+//             } else {
+//               this.setState({ loading: true });
+//               this.props.navigation.navigate("Articles");
+//             }
+//           });
+//       })
+//       .catch(err => console.log(err));
+//   }
+// }
+
   render() {
+    const {loading}= this.state;
+    if (loading){
+      return <Loading/>
+    }
     return (
       <View style={styles.mainContainer}>
         <View style={styles.upperPart}>
@@ -41,7 +110,7 @@ export default class Login extends Component {
         </View>
         <View style={styles.form}>
           <Input
-            placeholder="User Name"
+            placeholder="Email address"
             onChangeText={(val)=>this.setState({name:val})}
             leftIcon={{ type: "font-awesome", name: "user", color:login.iconColor,size:16 ,marginBottom:5}}
             labelStyle={{ color: login.textColor }}
@@ -66,7 +135,7 @@ export default class Login extends Component {
           <TouchableOpacity style={{flexDirection:'row-reverse'}}><Text style={{marginRight:'4%',color:login.textColor,marginTop:'2%'}}>Forgot Password?</Text></TouchableOpacity>
           <View style={styles.buttonGroup}>
           <Button title="Login"
-          onPress={()=>this.props.navigation.navigate("Type")}
+          onPress={()=>this.signInHandler(this.state.name,this.state.password)}
                 buttonStyle={styles.button}
                 titleStyle={{color:themeColor}}
             />
@@ -79,7 +148,7 @@ export default class Login extends Component {
               }}
             />
           </View>
-          <TouchableOpacity onPress={()=>this.props.navigation.navigate("SignUp")}><Text style={{textAlign:'center',color:login.textColor}}>Already have an account?Sign up</Text></TouchableOpacity>
+          <TouchableOpacity onPress={()=>this.props.navigation.navigate("Type")}><Text style={{textAlign:'center',color:login.textColor}}>Already have an account?Sign up</Text></TouchableOpacity>
 
         </View>
       </View>
