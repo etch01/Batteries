@@ -14,7 +14,10 @@ const { height, width } = Dimensions.get("window");
 import { Input, Button } from "react-native-elements";
 
 export default class Login extends Component {
-  state = {};
+  state = {
+    name:'',
+    password:''
+};
 
   render() {
     return (
@@ -39,6 +42,7 @@ export default class Login extends Component {
         <View style={styles.form}>
           <Input
             placeholder="User Name"
+            onChangeText={(val)=>this.setState({name:val})}
             leftIcon={{ type: "font-awesome", name: "user", color:login.iconColor,size:16 ,marginBottom:5}}
             labelStyle={{ color: login.textColor }}
             leftIconContainerStyle={{justifyContent:"flex-end"}}
@@ -49,6 +53,7 @@ export default class Login extends Component {
             />
             <Input
             placeholder="Password"
+            onChangeText={(val)=>this.setState({password:val})}
             secureTextEntry={true}
             leftIcon={{ type: "font-awesome", name: "lock", color:login.iconColor,size:16,marginBottom:5  }}
             labelStyle={{ color: login.textColor }}
