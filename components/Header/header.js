@@ -8,10 +8,10 @@ import {
   TouchableOpacity,
   Dimensions
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { Feather } from "@expo/vector-icons";
-import { MaterialIcons } from "@expo/vector-icons";
-import {themeColor} from '../../assets/theme/themeSettings';
+import { Ionicons, Feather, MaterialIcons } from "@expo/vector-icons";
+import { themeColor } from "../../assets/theme/themeSettings";
+import { Icon, withBadge, Badge } from "react-native-elements";
+
 // import { FontAwesome5 } from "@expo/vector-icons";
 // import { MaterialIcons } from "@expo/vector-icons";
 
@@ -50,6 +50,11 @@ export default props => {
           <View>
             <TouchableOpacity onPress={props.backButton}>
               <Ionicons name="md-cart" size={32} color="#fff" />
+              <Badge
+                status="success"
+                value={props.badgeValue}
+                containerStyle={{ position: "absolute", top: -4, right: -4 }}
+              />
             </TouchableOpacity>
           </View>
         </View>

@@ -7,12 +7,11 @@ import {
   FlatList,
   ScrollView,
   StyleSheet,
-  TouchableOpacity
+  TouchableOpacity,
+  Alert
 } from "react-native";
 import Header from "../Header/header";
-import { Ionicons } from "@expo/vector-icons";
-import { FontAwesome } from "@expo/vector-icons";
-import { Rating, AirbnbRating } from "react-native-rating";
+import { Ionicons,FontAwesome } from "@expo/vector-icons";
 import StarRating from "react-native-star-rating";
 import {themeColor} from "../../assets/theme/themeSettings";
 
@@ -55,7 +54,10 @@ export default class products extends Component {
         content:
           "Some text some text some text Some text some text some text Some text some text some text Some text some text some text"
       }
-    ]
+    ],
+    cart:[
+
+    ],
   };
 
   onStarRatingPress(rating) {
@@ -63,10 +65,26 @@ export default class products extends Component {
       starCount: rating
     });
   }
+
+  addingProductToCart=(product)=>{
+    const {cart} = this.state;
+    const newArray = [...cart];
+    if(cart.includes(product)){
+      Alert.alert("Already added","Your item is already in cart ")
+    }
+    else{
+      newArray.push(product);
+      this.setState({cart:newArray})
+    }
+  }  
+
   render() {
+    const {cart,products} = this.state;
     return (
       <View>
-        <Header title="Products" />
+        <Header title="Products" 
+        badgeValue={cart.length}
+        />
         <View style={styles.top}>
           <Image
             source={require("../../assets/MaskGroup2.png")}
@@ -155,7 +173,7 @@ export default class products extends Component {
                           justifyContent: "space-between"
                         }}
                       >
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={()=>this.addingProductToCart(item)}>
                           <Ionicons name="md-cart" size={32} color={themeColor} />
                         </TouchableOpacity>
                         <TouchableOpacity>
