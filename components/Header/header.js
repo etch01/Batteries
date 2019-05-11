@@ -38,17 +38,17 @@ export default props => {
           }}
         >
           <View>
-            <TouchableOpacity onPress={props.backButton}>
+            <TouchableOpacity onPress={props.rightButtonSearch}>
               <Feather name="search" size={32} color="#fff" />
             </TouchableOpacity>
           </View>
           <View>
-            <TouchableOpacity onPress={props.backButton}>
+            <TouchableOpacity onPress={props.rightButtonChat}>
               <MaterialIcons name="chat-bubble" size={28} color="#fff" />
             </TouchableOpacity>
           </View>
           <View>
-            <TouchableOpacity onPress={props.backButton}>
+            <TouchableOpacity onPress={props.rightButtonCart}>
               <Ionicons name="md-cart" size={32} color="#fff" />
               <Badge
                 status="success"

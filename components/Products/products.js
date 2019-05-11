@@ -14,6 +14,7 @@ import Header from "../Header/header";
 import { Ionicons,FontAwesome } from "@expo/vector-icons";
 import StarRating from "react-native-star-rating";
 import {themeColor} from "../../assets/theme/themeSettings";
+import * as firebase from 'firebase'
 
 const { width, height } = Dimensions.get("window");
 
@@ -32,27 +33,31 @@ export default class products extends Component {
         name: "Vape",
         image: "../../assets/301.png",
         rate: 4.3,
-        content: "Some text some text some text"
+        content: "Some text some text some text",
+        quantity:1
       },
       {
         name: "Charger",
         image: "../../assets/302.png",
         rate: 3.3,
-        content: "Some text some text some text Some text some text some text "
+        content: "Some text some text some text Some text some text some text ",
+        quantity:1
       },
       {
         name: "Car Batteries",
         image: "../../assets/303.png",
         rate: 5,
         content:
-          "Some text some text some text Some text some text some text Some text some text some text "
+          "Some text some text some text Some text some text some text Some text some text some text ",
+          quantity:1
       },
       {
         name: "Phone Batteries",
         image: "../../assets/304.png",
         rate: 4.3,
         content:
-          "Some text some text some text Some text some text some text Some text some text some text Some text some text some text"
+          "Some text some text some text Some text some text some text Some text some text some text Some text some text some text",
+          quantity:1
       }
     ],
     cart:[
@@ -70,7 +75,7 @@ export default class products extends Component {
     const {cart} = this.state;
     const newArray = [...cart];
     if(cart.includes(product)){
-      Alert.alert("Already added","Your item is already in cart ")
+      Alert.alert("Already added","Your item is already in the cart ")
     }
     else{
       newArray.push(product);
@@ -84,6 +89,8 @@ export default class products extends Component {
       <View>
         <Header title="Products" 
         badgeValue={cart.length}
+        rightButtonCart={()=>this.props.navigation.navigate('Cart',cart)}
+        backButton={()=>firebase.auth().signOut()}
         />
         <View style={styles.top}>
           <Image

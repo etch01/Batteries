@@ -19,8 +19,40 @@ export default class Login extends Component {
   state = {
     name:'',
     password:'',
-    loading: false
+    loading: false,
 };
+
+componentWillMount=()=>{
+  this.setState({loading:true});
+  firebase.auth().onAuthStateChanged(user=>{
+    if(user){
+      this.props.navigation.navigate('Products')
+      //console.log(user.providerData);
+    }else{
+      this.setState({loading:false});
+    }
+  })
+}
+
+componentDidMount=()=>{
+  firebase.auth().onAuthStateChanged(user=>{
+    if(user&&user.providerData.providerId=="facebook.com"){
+      firebase
+      .database()
+      .ref("users/" + user.providerData.uid)
+      .set({
+        name: user.providerData.displayName,
+        email: user.providerData.email,
+        phone: this.state.phone,
+        confirmed: true,
+        admin:false,
+        gender:'not defined',
+        type:this.props.navigation.state.params.type==""||this.props.navigation.state.params.type==undefined?'individual':this.props.navigation.state.params.type,
+        dateCreated:'',
+      })
+    }
+  })
+}
 
 signInHandler(email, password) {
   try {
@@ -54,35 +86,41 @@ signInHandler(email, password) {
   }
 }
 //Facebook Login
-// async loginWithFacebook() {
-//   //ENTER YOUR APP ID
-//   const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync(
-//     "353512445454546",
-//     { permissions: ["email"] }
-//   );
-//   if (type == "success") {
-//     const credential = firebase.auth.FacebookAuthProvider.credential(token);
-//     firebase
-//       .auth()
-//       .signInAndRetrieveDataWithCredential(credential)
-//       .then(() => {
-//         var user = firebase.auth().currentUser.uid;
-//         firebase
-//           .database()
-//           .ref("users/" + user)
-//           .on("value", snap => {
-//             if (snap.val() !== null) {
-//               this.setState({ loading: true });
-//               this.props.navigation.navigate("MainScreen");
-//             } else {
-//               this.setState({ loading: true });
-//               this.props.navigation.navigate("Articles");
-//             }
-//           });
-//       })
-//       .catch(err => console.log(err));
-//   }
-// }
+ loginWithFacebook=async()=> {
+  //ENTER YOUR APP ID
+  const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync(
+    "2246510685464924",
+    { permissions: ["email"] }
+  );
+  if (type == "success") {
+    this.setState({ loading: true });
+    const credential = await firebase.auth.FacebookAuthProvider.credential(token);
+    firebase
+      .auth()
+      .signInAndRetrieveDataWithCredential(credential)
+      .then(() => {
+        this.setState({ loading: false });
+        var user = firebase.auth().currentUser.uid;
+        firebase
+          .database()
+          .ref("users/" + user)
+          .on("value", snap => {
+            if (snap.val() !== null) {
+              this.setState({ loading: true });
+              //this.setState({ loading: true });
+              //this.props.navigation.navigate("Products");
+            } else {
+              this.setState({ loading: true });
+              //this.props.navigation.navigate("Products");
+            }
+          });
+      })
+      .catch(err =>{
+        console.log(err);
+        this.setState({ loading: false });
+      });
+  }
+}
 
   render() {
     const {loading}= this.state;
@@ -140,6 +178,7 @@ signInHandler(email, password) {
                 titleStyle={{color:themeColor}}
             />
             <Button title="Login with Facebook"
+            onPress={this.loginWithFacebook}
               icon={{
                   type:"font-awesome",
                 name: "facebook",
