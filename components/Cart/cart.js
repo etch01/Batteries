@@ -36,29 +36,27 @@ export default class cart extends Component {
   decreaseQuantityHandler=(currentQuantity,itemName,index)=>{
     const {products} = this.state;
     const newArray = [...products];
-    if (newArray[index].quantity!=0){
+    if (newArray[index].quantity!=1){
       newArray[index].quantity = currentQuantity - 1;
     }else{
       newArray.splice(index,1);
     }
-    
-    // if (newArray[index].quantity==0){
-    //   newArray.map((item)=>{
-    //     if (item.quantity!=0){
-    //       return item
-    //     }
-    //   })
-    // }
     this.setState({products:newArray});
   }
 
   render() {
+    const {products} = this.state;
     if(this.state.products.length==0){
       return (
         <View>
         <Header
           title="Cart"
           backButton={() => this.props.navigation.goBack()}
+          rightButtonLogout={()=>{
+            firebase.auth().signOut()
+            this.props.navigation.navigate('Login')
+          }}
+
         />
         <View style={{alignItems:'center',color:themeColor,justifyContent:'center'}}>
         <Text style={{fontSize:20,fontWeight:'bold'}}>The cart is empty.</Text>
@@ -147,7 +145,9 @@ export default class cart extends Component {
                         <Ionicons name="md-cart" size={24} color="grey" />
                       </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={styles.myButton}>
+                    <TouchableOpacity style={styles.myButton}
+                    onPress={()=>this.props.navigation.navigate('Location',products)}
+                    >
                       <Text style={{ color: themeColor, fontWeight: "800" }}>
                         Execute
                       </Text>

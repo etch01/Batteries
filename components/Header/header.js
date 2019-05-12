@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Dimensions
 } from "react-native";
-import { Ionicons, Feather, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, Feather, MaterialIcons,AntDesign } from "@expo/vector-icons";
 import { themeColor } from "../../assets/theme/themeSettings";
 import { Icon, withBadge, Badge } from "react-native-elements";
 
@@ -24,7 +24,7 @@ export default props => {
       <View style={styles.headerView}>
         <View style={{ width: width * 0.25 }}>
           <TouchableOpacity onPress={props.backButton}>
-            <Ionicons name="md-list" size={32} color="#fff" />
+            <Ionicons name="ios-arrow-back" size={32} color="#fff" />
           </TouchableOpacity>
         </View>
         <View>
@@ -38,8 +38,8 @@ export default props => {
           }}
         >
           <View>
-            <TouchableOpacity onPress={props.rightButtonSearch}>
-              <Feather name="search" size={32} color="#fff" />
+            <TouchableOpacity onPress={props.rightButtonLogout}>
+              <AntDesign name="poweroff" size={24} color="#fff" />
             </TouchableOpacity>
           </View>
           <View>

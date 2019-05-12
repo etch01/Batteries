@@ -8,124 +8,134 @@ import {
   StatusBar,
   Dimensions
 } from "react-native";
-import * as firebase from 'firebase'
+import * as firebase from "firebase";
 import { themeColor, login } from "../../assets/theme/themeSettings";
-import Loading from '../Loading Page/loading';
+import Loading from "../Loading Page/loading";
 const { height, width } = Dimensions.get("window");
 
 import { Input, Button } from "react-native-elements";
 
 export default class Login extends Component {
   state = {
-    name:'',
-    password:'',
-    loading: false,
-};
+    name: "",
+    password: "",
+    loading: false
+  };
 
-componentWillMount=()=>{
-  this.setState({loading:true});
-  firebase.auth().onAuthStateChanged(user=>{
-    if(user){
-      this.props.navigation.navigate('Products')
-      //console.log(user.providerData);
-    }else{
-      this.setState({loading:false});
+  componentWillMount = () => {
+    this.setState({ loading: true });
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        this.props.navigation.navigate("Products");
+        //console.log(user.providerData);
+      } else {
+        this.setState({ loading: false });
+      }
+    });
+  };
+
+  componentDidMount = () => {
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        var uid = firebase.auth().currentUser.uid;
+        if (user.providerData[0].providerId == "facebook.com") {
+          //firebase.database().ref('users/'+uid).on('value',(snap)=>{
+          firebase
+            .database()
+            .ref("users/" + uid)
+            .set({
+              name: user.providerData[0].displayName,
+              email: user.providerData[0].email,
+              phone: "",
+              confirmed: true,
+              admin: false,
+              gender: "not defined",
+              type: "individual",
+              dateCreated: ""
+            })
+            .catch(error => console.log(error));
+        }
+
+        //}
+        //})
+      }
+    });
+  };
+
+  signInHandler(email, password) {
+    try {
+      if (this.state.email !== "" && this.state.password !== "") {
+        this.setState({ loading: true });
+        firebase
+          .auth()
+          .signInWithEmailAndPassword(email, password)
+          .then(data => {
+            this.setState({ loading: false });
+            this.props.navigation.navigate("Products");
+          })
+          .catch(error => {
+            var err = error.code;
+            if (err == "auth/user-disabled") {
+              alert("User has been banned.");
+            } else if (err == "auth/invalid-email") {
+              alert("email is not correct.");
+            } else if (err == "auth/user-not-found") {
+              alert("Email address doesn't exist.");
+            } else if (err == "auth/wrong-password") {
+              alert("Incorrect password.");
+            }
+            this.setState({ loading: false });
+          });
+      } else {
+        alert("email or password cannot be empty.");
+      }
+    } catch (error) {
+      console.log(error.code);
     }
-  })
-}
-
-componentDidMount=()=>{
-  firebase.auth().onAuthStateChanged(user=>{
-    if(user&&user.providerData.providerId=="facebook.com"){
-      firebase
-      .database()
-      .ref("users/" + user.providerData.uid)
-      .set({
-        name: user.providerData.displayName,
-        email: user.providerData.email,
-        phone: this.state.phone,
-        confirmed: true,
-        admin:false,
-        gender:'not defined',
-        type:this.props.navigation.state.params.type==""||this.props.navigation.state.params.type==undefined?'individual':this.props.navigation.state.params.type,
-        dateCreated:'',
-      })
-    }
-  })
-}
-
-signInHandler(email, password) {
-  try {
-    if (this.state.email !== "" && this.state.password !== "") {
+  }
+  //Facebook Login
+  loginWithFacebook = async () => {
+    //ENTER YOUR APP ID
+    const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync(
+      "2246510685464924",
+      { permissions: ["email"] }
+    );
+    if (type == "success") {
       this.setState({ loading: true });
+      const credential = await firebase.auth.FacebookAuthProvider.credential(
+        token
+      );
       firebase
         .auth()
-        .signInWithEmailAndPassword(email, password)
-        .then(data => {
-          this.setState({loading:false});
-          this.props.navigation.navigate('Products');
+        .signInAndRetrieveDataWithCredential(credential)
+        .then(() => {
+          this.setState({ loading: false });
+          var user = firebase.auth().currentUser.uid;
+          firebase
+            .database()
+            .ref("users/" + user)
+            .on("value", snap => {
+              if (snap.val() !== null) {
+                this.setState({ loading: true });
+                //this.setState({ loading: true });
+                //this.props.navigation.navigate("Products");
+              } else {
+                this.setState({ loading: true });
+                //this.props.navigation.navigate("Products");
+              }
+            });
         })
-        .catch(error => {
-          var err = error.code;
-          if (err == "auth/user-disabled") {
-            alert("User has been banned.");
-          } else if (err == "auth/invalid-email") {
-            alert("email is not correct.");
-          } else if (err == "auth/user-not-found") {
-            alert("Email address doesn't exist.");
-          } else if (err == "auth/wrong-password") {
-            alert("Incorrect password.");
-          }
+        .catch(err => {
+          console.log(err);
           this.setState({ loading: false });
         });
-    } else {
-      alert("email or password cannot be empty.");
     }
-  } catch (error) {
-    console.log(error.code);
-  }
-}
-//Facebook Login
- loginWithFacebook=async()=> {
-  //ENTER YOUR APP ID
-  const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync(
-    "2246510685464924",
-    { permissions: ["email"] }
-  );
-  if (type == "success") {
-    this.setState({ loading: true });
-    const credential = await firebase.auth.FacebookAuthProvider.credential(token);
-    firebase
-      .auth()
-      .signInAndRetrieveDataWithCredential(credential)
-      .then(() => {
-        this.setState({ loading: false });
-        var user = firebase.auth().currentUser.uid;
-        firebase
-          .database()
-          .ref("users/" + user)
-          .on("value", snap => {
-            if (snap.val() !== null) {
-              this.setState({ loading: true });
-              //this.setState({ loading: true });
-              //this.props.navigation.navigate("Products");
-            } else {
-              this.setState({ loading: true });
-              //this.props.navigation.navigate("Products");
-            }
-          });
-      })
-      .catch(err =>{
-        console.log(err);
-        this.setState({ loading: false });
-      });
-  }
-}
+  };
 
   render() {
-    const {loading}= this.state;
-    if (loading){
-      return <Loading/>
+    const { loading } = this.state;
+    if (loading) {
+      return <Loading />;
     }
     return (
       <View style={styles.mainContainer}>
@@ -139,56 +149,87 @@ signInHandler(email, password) {
               </TouchableOpacity>
             </View>
           </View>
-          <View style={{alignItems:"center"}}>
-          <Image source={require("../../assets/images/capture.png")} />
-          <Text style={styles.templateText}>
-            Lorem dolor sit amet consectetur adipisicing elit, sed do.
-          </Text>
+          <View style={{ alignItems: "center" }}>
+            <Image source={require("../../assets/images/capture.png")} />
+            <Text style={styles.templateText}>
+              Lorem dolor sit amet consectetur adipisicing elit, sed do.
+            </Text>
           </View>
         </View>
         <View style={styles.form}>
           <Input
             placeholder="Email address"
-            onChangeText={(val)=>this.setState({name:val})}
-            leftIcon={{ type: "font-awesome", name: "user", color:login.iconColor,size:16 ,marginBottom:5}}
+            onChangeText={val => this.setState({ name: val })}
+            leftIcon={{
+              type: "font-awesome",
+              name: "user",
+              color: login.iconColor,
+              size: 16,
+              marginBottom: 5
+            }}
             labelStyle={{ color: login.textColor }}
-            leftIconContainerStyle={{justifyContent:"flex-end"}}
+            leftIconContainerStyle={{ justifyContent: "flex-end" }}
             inputStyle={styles.input}
             autoCapitalize="none"
-            inputContainerStyle={{borderBottomColor:login.inputBorderColor}}
-            placeholderTextColor={login.textColor}
-            />
-            <Input
-            placeholder="Password"
-            onChangeText={(val)=>this.setState({password:val})}
-            secureTextEntry={true}
-            leftIcon={{ type: "font-awesome", name: "lock", color:login.iconColor,size:16,marginBottom:5  }}
-            labelStyle={{ color: login.textColor }}
-            leftIconContainerStyle={{justifyContent:"flex-end"}}
-            inputStyle={styles.input}
-            autoCapitalize="none"
-            inputContainerStyle={{borderBottomColor:login.inputBorderColor}}
+            inputContainerStyle={{ borderBottomColor: login.inputBorderColor }}
             placeholderTextColor={login.textColor}
           />
-          <TouchableOpacity style={{flexDirection:'row-reverse'}}><Text style={{marginRight:'4%',color:login.textColor,marginTop:'2%'}}>Forgot Password?</Text></TouchableOpacity>
+          <Input
+            placeholder="Password"
+            onChangeText={val => this.setState({ password: val })}
+            secureTextEntry={true}
+            leftIcon={{
+              type: "font-awesome",
+              name: "lock",
+              color: login.iconColor,
+              size: 16,
+              marginBottom: 5
+            }}
+            labelStyle={{ color: login.textColor }}
+            leftIconContainerStyle={{ justifyContent: "flex-end" }}
+            inputStyle={styles.input}
+            autoCapitalize="none"
+            inputContainerStyle={{ borderBottomColor: login.inputBorderColor }}
+            placeholderTextColor={login.textColor}
+          />
+          <TouchableOpacity style={{ flexDirection: "row-reverse" }}>
+            <Text
+              style={{
+                marginRight: "4%",
+                color: login.textColor,
+                marginTop: "2%"
+              }}
+            >
+              Forgot Password?
+            </Text>
+          </TouchableOpacity>
           <View style={styles.buttonGroup}>
-          <Button title="Login"
-          onPress={()=>this.signInHandler(this.state.name,this.state.password)}
-                buttonStyle={styles.button}
-                titleStyle={{color:themeColor}}
+            <Button
+              title="Login"
+              onPress={() =>
+                this.signInHandler(this.state.name, this.state.password)
+              }
+              buttonStyle={styles.button}
+              titleStyle={{ color: themeColor }}
             />
-            <Button title="Login with Facebook"
-            onPress={this.loginWithFacebook}
+            <Button
+              title="Login with Facebook"
+              onPress={this.loginWithFacebook}
               icon={{
-                  type:"font-awesome",
+                type: "font-awesome",
                 name: "facebook",
                 size: 15,
                 color: "white"
               }}
             />
           </View>
-          <TouchableOpacity onPress={()=>this.props.navigation.navigate("Type")}><Text style={{textAlign:'center',color:login.textColor}}>Already have an account?Sign up</Text></TouchableOpacity>
-
+          <TouchableOpacity
+            onPress={() => this.props.navigation.navigate("Type")}
+          >
+            <Text style={{ textAlign: "center", color: login.textColor }}>
+              Already have an account?Sign up
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -198,12 +239,12 @@ signInHandler(email, password) {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: themeColor,
+    backgroundColor: themeColor
   },
   upperPart: {
     alignItems: "center",
-    height:height*.4,
-    justifyContent:'space-between'
+    height: height * 0.4,
+    justifyContent: "space-between"
   },
   loginAndSkipText: {
     flexDirection: "row",
@@ -215,7 +256,7 @@ const styles = StyleSheet.create({
   form: {
     marginLeft: 10,
     marginRight: 10,
-    marginTop:"5%"
+    marginTop: "5%"
   },
   loginText: {
     color: login.textColor,
@@ -234,23 +275,23 @@ const styles = StyleSheet.create({
     color: login.textColor,
     marginRight: "10%",
     marginLeft: "10%",
-    marginTop:"3%",
+    marginTop: "3%",
     textAlign: "center"
   },
   input: {
-      color:'#fff',
-      marginLeft:'5%',
-      marginTop:"5%"
+    color: "#fff",
+    marginLeft: "5%",
+    marginTop: "5%"
   },
-  buttonGroup:{
-    marginLeft:"5%",
-    marginRight:"5%",
-    marginBottom:"5%",
-    marginTop:"3%",
-    justifyContent:'space-around',
-    height:height*.2
+  buttonGroup: {
+    marginLeft: "5%",
+    marginRight: "5%",
+    marginBottom: "5%",
+    marginTop: "3%",
+    justifyContent: "space-around",
+    height: height * 0.2
   },
-  button:{
-      backgroundColor:login.textColor
+  button: {
+    backgroundColor: login.textColor
   }
 });

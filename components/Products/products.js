@@ -90,8 +90,10 @@ export default class products extends Component {
         <Header title="Products" 
         badgeValue={cart.length}
         rightButtonCart={()=>this.props.navigation.navigate('Cart',cart)}
-        backButton={()=>firebase.auth().signOut()}
-        />
+        rightButtonLogout={()=>{
+          firebase.auth().signOut()
+          this.props.navigation.navigate('Login')
+        }}        />
         <View style={styles.top}>
           <Image
             source={require("../../assets/MaskGroup2.png")}
