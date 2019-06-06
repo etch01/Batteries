@@ -37,11 +37,7 @@ export default props => {
             justifyContent: "space-between"
           }}
         >
-          <View>
-            <TouchableOpacity onPress={props.rightButtonLogout}>
-              <AntDesign name="poweroff" size={24} color="#fff" />
-            </TouchableOpacity>
-          </View>
+
           <View>
             <TouchableOpacity onPress={props.rightButtonChat}>
               <MaterialIcons name="chat-bubble" size={28} color="#fff" />

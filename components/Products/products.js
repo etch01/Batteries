@@ -15,6 +15,7 @@ import { Ionicons,FontAwesome } from "@expo/vector-icons";
 import StarRating from "react-native-star-rating";
 import {themeColor} from "../../assets/theme/themeSettings";
 import * as firebase from 'firebase'
+import Modal from './modal/productsModal';
 
 const { width, height } = Dimensions.get("window");
 
@@ -31,21 +32,21 @@ export default class products extends Component {
     products: [
       {
         name: "Vape",
-        image: "../../assets/301.png",
+        image: "https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/batteries%2Fvape_battery.jpg?alt=media&token=7cd9b958-bd75-42a7-a834-d171360cdac2",
         rate: 4.3,
         content: "Some text some text some text",
         quantity:1
       },
       {
         name: "Charger",
-        image: "../../assets/302.png",
+        image: "https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/batteries%2Fcharger.jpg?alt=media&token=71cb150a-253e-466a-a5e6-54e980f08b92",
         rate: 3.3,
         content: "Some text some text some text Some text some text some text ",
         quantity:1
       },
       {
         name: "Car Batteries",
-        image: "../../assets/303.png",
+        image: "https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/batteries%2F068xd-car-battery-1.jpg?alt=media&token=7dd3db1a-f88c-403d-a008-99ed26a93fa9",
         rate: 5,
         content:
           "Some text some text some text Some text some text some text Some text some text some text ",
@@ -53,12 +54,19 @@ export default class products extends Component {
       },
       {
         name: "Phone Batteries",
-        image: "../../assets/304.png",
+        image: "https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/batteries%2Fphone_battery.jpg?alt=media&token=68670b74-8186-4c0c-ab7f-61ce7096dd4c",
         rate: 4.3,
         content:
           "Some text some text some text Some text some text some text Some text some text some text Some text some text some text",
           quantity:1
-      }
+      },
+      {
+        name: "Other",
+        image: "https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/batteries%2Fother.png?alt=media&token=cf6a06cf-c49c-4e33-b9f2-05e26b439263",
+        rate: 4.8,
+        content: "Other type of batteries",
+        quantity:1
+      },
     ],
     cart:[
 
@@ -90,10 +98,7 @@ export default class products extends Component {
         <Header title="Products" 
         badgeValue={cart.length}
         rightButtonCart={()=>this.props.navigation.navigate('Cart',cart)}
-        rightButtonLogout={()=>{
-          firebase.auth().signOut()
-          this.props.navigation.navigate('Login')
-        }}        />
+       />
         <View style={styles.top}>
           <Image
             source={require("../../assets/MaskGroup2.png")}
@@ -155,10 +160,10 @@ export default class products extends Component {
             <FlatList
               data={this.state.products}
               renderItem={({ item, index }) => (
-                <View style={styles.botCom}>
+                <TouchableOpacity onPress={()=>this.addingProductToCart(item)} style={styles.botCom}>
                   <View style={styles.botImgCon}>
                     <Image
-                      source={require("../../assets/310.jpg")}
+                      source={{uri:item.image}}
                       style={styles.botImage}
                     />
                   </View>
@@ -182,12 +187,11 @@ export default class products extends Component {
                           justifyContent: "space-between"
                         }}
                       >
-                        <TouchableOpacity onPress={()=>this.addingProductToCart(item)}>
+                        <View >
                           <Ionicons name="md-cart" size={32} color={themeColor} />
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                          <FontAwesome name="heart" size={24} color="grey" />
-                        </TouchableOpacity>
+                        </View>
+                        <View>
+                        </View>
                       </View>
                     </View>
                     <View
@@ -216,7 +220,7 @@ export default class products extends Component {
                       <Text>{item.content}</Text>
                     </View>
                   </View>
-                </View>
+                </TouchableOpacity>
               )}
               keyExtractor={(item, index) => index.toString()}
             />

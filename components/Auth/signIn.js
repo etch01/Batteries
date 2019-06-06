@@ -19,7 +19,8 @@ export default class Login extends Component {
   state = {
     name: "",
     password: "",
-    loading: false
+    loading: false,
+    errorMessage:''
   };
 
   componentWillMount = () => {
@@ -33,7 +34,7 @@ export default class Login extends Component {
       }
     });
   };
-
+  //check if there is already a user
   componentDidMount = () => {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
@@ -61,7 +62,7 @@ export default class Login extends Component {
       }
     });
   };
-
+  //sign in function
   signInHandler(email, password) {
     try {
       if (this.state.email !== "" && this.state.password !== "") {
@@ -76,21 +77,25 @@ export default class Login extends Component {
           .catch(error => {
             var err = error.code;
             if (err == "auth/user-disabled") {
-              alert("User has been banned.");
+              this.setState({errorMessage:"User has been banned."});
             } else if (err == "auth/invalid-email") {
-              alert("email is not correct.");
+              this.setState({errorMessage:"email is not correct."});
             } else if (err == "auth/user-not-found") {
-              alert("Email address doesn't exist.");
+              this.setState({errorMessage:"Email address doesn't exist."});
             } else if (err == "auth/wrong-password") {
-              alert("Incorrect password.");
+              this.setState({errorMessage:"Incorrect password."});
             }
             this.setState({ loading: false });
           });
       } else {
-        alert("email or password cannot be empty.");
+        this.setState({errorMessage:"Email or password cannot be empty."})
       }
     } catch (error) {
-      console.log(error.code);
+      if(error.code){
+        this.setState({errorMessage:error.code})
+      }else{
+        this.setState({errorMessage:error})
+      }
     }
   }
   //Facebook Login
@@ -192,6 +197,7 @@ export default class Login extends Component {
             inputContainerStyle={{ borderBottomColor: login.inputBorderColor }}
             placeholderTextColor={login.textColor}
           />
+          <Text style={{color:'red',margin:'3%'}}>{this.state.errorMessage}</Text>
           <TouchableOpacity style={{ flexDirection: "row-reverse" }}>
             <Text
               style={{

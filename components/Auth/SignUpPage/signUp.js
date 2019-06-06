@@ -10,35 +10,37 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  NetInfo
+  NetInfo,
+  Modal
 } from "react-native";
-import {themeColor} from '../../../assets/theme/themeSettings';
-import firebase from 'firebase';
+import { Input, Button } from "react-native-elements";
+import { themeColor } from "../../../assets/theme/themeSettings";
+import firebase from "firebase";
+import { FontAwesome } from "@expo/vector-icons";
 
 // import { runInContext } from "vm";
 
 const { width, height } = Dimensions.get("window");
 
 export default class SignUp extends Component {
-  state={
-    errorMessage:"",
-    loading:false,
-    name:'',
-    email:'',
-    password:'',
-    gender:'',
-    phone:'',
-    address:'',
-    confirmed:false,
-    type:''
-  }
+  state = {
+    errorMessage: "",
+    loading: false,
+    modalVisible: false,
+    //signup state
+    name: "",
+    email: "",
+    password: "",
+    gender: "Gender",
+    phone: "",
+    address: "",
+    confirmed: false,
+    type: "",
+  };
 
   signUpHandler(email, password) {
     //checking if required fields are not empty !
-    if (
-      this.state.email !== "" &&
-      this.state.password !== ""
-    ) {
+    if (this.state.email !== "" && this.state.password !== "") {
       this.setState({ loading: true });
       //Sign Up with Mail and password as parameters
       firebase
@@ -71,12 +73,16 @@ export default class SignUp extends Component {
               email: this.state.email,
               phone: this.state.phone,
               confirmed: this.state.confirmed,
-              admin:false,
-              gender:this.state.gender,
-              type:this.props.navigation.state.params.type==""||this.props.navigation.state.params.type==undefined?this.state.type:this.props.navigation.state.params.type,
-              dateCreated:today,
+              admin: false,
+              gender: this.state.gender,
+              type:
+                this.props.navigation.state.params.type == "" ||
+                this.props.navigation.state.params.type == undefined
+                  ? this.state.type
+                  : this.props.navigation.state.params.type,
+              dateCreated: today
             })
-            .then(()=>{
+            .then(() => {
               this.setState({ loading: false });
               this.props.navigation.navigate("Type");
             })
@@ -87,32 +93,40 @@ export default class SignUp extends Component {
           var errorCode = error.code;
           var errorMessage = error.message;
           if (errorCode == "auth/weak-password") {
-            this.setState({errorMessage:"Password must be 8 characters or more."});
+            this.setState({
+              errorMessage: "Password must be 8 characters or more."
+            });
             this.setState({ loading: false });
           } else if (errorCode == "auth/email-already-in-use") {
-            this.setState({errorMessage:"Email already in use."});
+            this.setState({ errorMessage: "Email already in use." });
             this.setState({ loading: false });
           } else if (errorCode == "auth/invalid-email") {
-            this.setState({errorMessage:"Invalid Email address."});
+            this.setState({ errorMessage: "Invalid Email address." });
             this.setState({ loading: false });
           } else if (errorCode == "auth/operation-not-allowed") {
-            this.setState({errorMessage:"Email is not activated."});
+            this.setState({ errorMessage: "Email is not activated." });
             this.setState({ loading: false });
           } else {
             alert(errorMessage);
           }
+          console.log(error);
         });
-    } else if (this.state.password.length < 8) {
-      this.setState({errorMessage:"Password is too short"});
     } else {
       //Trowing errors for required fields or password not match
-  if (this.state.email == "" && this.state.password == "") {
-        this.setState({errorMessage:"Please fill the required fields!"});
+      if (this.state.email == "" && this.state.password == "") {
+        this.setState({ errorMessage: "Please fill the required fields!" });
       }
     }
   }
-//Checking for internet Connection
-  authHandler=()=> {
+
+  //Gender Modal visibility switch
+  setModalVisible(visible) {
+    console.log('here')
+    this.setState({modalVisible:visible});
+  }
+
+  //Checking for internet Connection
+  authHandler = () => {
     NetInfo.getConnectionInfo().then(connectionInfo => {
       //alert('Initial, type: ' + connectionInfo.type + ', effectiveType: ' + connectionInfo.effectiveType);
       const status = connectionInfo.type;
@@ -122,7 +136,7 @@ export default class SignUp extends Component {
         alert("لا يوجد اتصال بالانترنت");
       }
     });
-  }
+  };
 
   componentWillUnmount() {
     NetInfo.isConnected.removeEventListener(
@@ -134,6 +148,7 @@ export default class SignUp extends Component {
   render() {
     return (
       <ScrollView style={styles.container}>
+
         <StatusBar barStyle="light-content" />
         <View style={styles.top}>
           <Image
@@ -141,62 +156,89 @@ export default class SignUp extends Component {
             source={require("../../../assets/images/capture.png")}
           />
           <Text style={styles.topText}> Create an Account </Text>
-          <Text style={styles.topSecText}>
-            You Can Create New Account Here
-          </Text>
+          <Text style={styles.topSecText}>You Can Create New Account Here</Text>
         </View>
         <View style={styles.middle}>
           <TextInput
             direction="rtl"
-            onChangeText={(val)=>this.setState({name:val})}
+            onChangeText={val => this.setState({ name: val })}
             style={styles.inputContainer}
             placeholder="Full Name"
             placeholderTextColor="#fff"
           />
           <TextInput
             style={styles.inputContainer}
-            onChangeText={(val)=>this.setState({email:val})}
+            onChangeText={val => this.setState({ email: val })}
             placeholder="Email"
             placeholderTextColor="#fff"
           />
           <TextInput
             style={styles.inputContainer}
-            onChangeText={(val)=>this.setState({password:val})}
+            onChangeText={val => this.setState({ password: val })}
+            secureTextEntry={true}
             placeholder="Password"
             placeholderTextColor="#fff"
           />
           <TextInput
             style={styles.inputContainer}
-            onChangeText={(val)=>this.setState({phone:val})}
+            onChangeText={val => this.setState({ phone: val })}
             placeholder="Mobile"
             placeholderTextColor="#fff"
           />
+
+          <TouchableOpacity 
+          onPress={()=>this.setModalVisible(!this.state.modalVisible)}
+          style={{flexDirection:'row',width:width*.8}}>
+            <TextInput
+              style={styles.inputContainer}
+              onChangeText={val => this.setState({ gender: val })}
+              placeholder="Gender"
+              placeholderTextColor="#fff"
+            />
+            <FontAwesome style={{marginTop:'2%',marginLeft:'-4%'}} name="angle-down" size={16} color="#fff" />
+          </TouchableOpacity>
           <TextInput
             style={styles.inputContainer}
-            onChangeText={(val)=>this.setState({gender:val})}
-            placeholder="Gender"
-            placeholderTextColor="#fff"
-          />
-          <TextInput
-            style={styles.inputContainer}
-            onChangeText={(val)=>this.setState({address:val})}
+            onChangeText={val => this.setState({ address: val })}
             placeholder="Address"
             placeholderTextColor="#fff"
           />
         </View>
         <Text style={styles.errorText}>{this.state.errorMessage}</Text>
         <View style={styles.bottom}>
-        {
-          !this.state.loading ?
-          <TouchableOpacity
-          onPress={()=>this.signUpHandler(this.state.email,this.state.password)}
-           style={styles.myButton}>
-            <Text style={styles.bottomText}> Sign Up </Text>
-          </TouchableOpacity>
-          : <ActivityIndicator size="large"/>
-        }
-
+          {!this.state.loading ? (
+            <TouchableOpacity
+              onPress={() =>
+                this.signUpHandler(this.state.email, this.state.password)
+              }
+              style={styles.myButton}
+            >
+              <Text style={styles.bottomText}> Sign Up </Text>
+            </TouchableOpacity>
+          ) : (
+            <ActivityIndicator size="large" />
+          )}
         </View>
+        <Modal
+          animationType="slide"
+          style={{width:100,height:100}}
+          transparent={true}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}>
+              <View style={{
+          flex: 1,
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center'}}>
+    <View style={{
+            width: 300,
+            height: 300}}>
+      <Button title='X' onPress={()=>this.setModalVisible(!this.state.modalVisible)}/>
+    </View>
+            </View>
+        </Modal>
       </ScrollView>
     );
   }
@@ -224,7 +266,6 @@ const styles = StyleSheet.create({
     color: "#fff"
   },
   logo: {
-
     alignItems: "center"
   },
   middle: {
@@ -252,13 +293,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 6,
     marginTop: "2%",
-    marginBottom: "2%",
+    marginBottom: "2%"
   },
   bottomText: {
     color: "#5aaa5a"
   },
-  errorText:{
-    color:'red',
-    marginLeft: "10%",
+  errorText: {
+    color: "red",
+    marginLeft: "10%"
   }
 });
