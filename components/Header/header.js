@@ -23,7 +23,7 @@ export default props => {
       <StatusBar barStyle="light-content" />
       <View style={styles.headerView}>
         <View style={{ width: width * 0.25 }}>
-          <TouchableOpacity onPress={props.backButton}>
+          <TouchableOpacity onPress={props.menu}>
             <Ionicons name="md-menu" size={32} color="#fff" />
           </TouchableOpacity>
         </View>

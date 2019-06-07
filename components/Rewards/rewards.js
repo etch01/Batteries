@@ -11,7 +11,7 @@ import {
   Alert
 } from "react-native";
 import Header from "../Header/miniHeader";
-import { Ionicons,FontAwesome } from "@expo/vector-icons";
+import { Ionicons,AntDesign } from "@expo/vector-icons";
 import StarRating from "react-native-star-rating";
 import {themeColor} from "../../assets/theme/themeSettings";
 import * as firebase from 'firebase'
@@ -123,7 +123,7 @@ export default class Rewards extends Component {
                         }}
                       >
                         <View >
-                          <Ionicons name="md-cart" size={32} color={themeColor} />
+                        <AntDesign name="checkcircleo" size={32} color={themeColor} />
                         </View>
                         <View>
                         </View>

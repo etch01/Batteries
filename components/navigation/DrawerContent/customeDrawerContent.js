@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View, StyleSheet,TouchableOpacity, Image } from 'react-native';
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import { Ionicons, FontAwesome,AntDesign } from "@expo/vector-icons";
 import firebase from 'firebase';
 import {themeColor} from '../../../assets/theme/themeSettings';
 import { DrawerActions } from 'react-navigation-drawer';
@@ -15,7 +15,7 @@ const signOut=(action)=>{
 const drawerContent = (props) => (
     <View style={styles.drawerContainer}>
           <TouchableOpacity onPress={()=>props.navigation.dispatch(DrawerActions.closeDrawer())}>
-                <Ionicons name="md-menu" size={30} color="black" />
+                <AntDesign name="closecircleo" size={30} color="#ffffff" />
           </TouchableOpacity>
         <View style={styles.imageContainer}>
             <Image style={styles.icon} source={require('../../../assets/images/capture.png')}/>

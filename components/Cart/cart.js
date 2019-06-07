@@ -19,28 +19,38 @@ export default class cart extends Component {
   state = {
     products: [
     ],
+    totalPoints:0,
+    minPoints:30
   };
 
   componentWillMount=()=>{
-    this.setState({products:this.props.navigation.state.params});
+    var pointsArray = []
+    let pts = this.props.navigation.state.params.map(item=>pointsArray.push(item.rate))
+    this.setState({products:this.props.navigation.state.params,totalPoints:pointsArray.reduce((a, b) => a + b, 0)});
   }
 
   increaseQuantityHandler=(currentQuantity,itemName,index)=>{
     const {products} = this.state;
     const newArray = [...products];
     newArray[index].quantity = currentQuantity + 1;
-    this.setState({products:newArray});
+    const oldPoints = this.state.totalPoints;
+    let neoPoints = newArray[index].rate + oldPoints;
+    this.setState({products:newArray,totalPoints:neoPoints});
   }
 
   decreaseQuantityHandler=(currentQuantity,itemName,index)=>{
     const {products} = this.state;
     const newArray = [...products];
+    const oldPoints = this.state.totalPoints;
+    if(oldPoints>newArray[index].rate){
+      var neoPoints = oldPoints - newArray[index].rate ;
+    }
     if (newArray[index].quantity!=1){
       newArray[index].quantity = currentQuantity - 1;
     }else{
       newArray.splice(index,1);
     }
-    this.setState({products:newArray});
+    this.setState({products:newArray,totalPoints:neoPoints});
   }
 
   render() {
@@ -124,7 +134,14 @@ export default class cart extends Component {
                       </TouchableOpacity>
                     </View>
                     <TouchableOpacity style={styles.myButton}
-                    onPress={()=>this.props.navigation.navigate('Location',products)}
+                    onPress={()=>{
+                      if(this.state.minPoints<=this.state.totalPoints){
+                        this.props.navigation.navigate('Location',products)
+                      }
+                      else{
+                        alert("The minimum points are: "+30)
+                      }
+                    }}
                     >
                       <Text style={{ color: themeColor, fontWeight: "800" }}>
                         Execute
