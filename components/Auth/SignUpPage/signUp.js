@@ -74,6 +74,7 @@ export default class SignUp extends Component {
               phone: this.state.phone,
               confirmed: this.state.confirmed,
               admin: false,
+              points:0,
               gender: this.state.gender,
               type:
                 this.props.navigation.state.params.type == "" ||

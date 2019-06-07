@@ -49,7 +49,7 @@ export default class NoteModal extends Component{
                     loading={this.state.loading}
                     />
                     <Button title="Cancel" onPress={this.props.toggleModal} 
-                    buttonStyle={{backgroundColor:"red"}}
+                    buttonStyle={{backgroundColor:"tomato"}}
                     />
      
                  </View>

@@ -9,9 +9,8 @@ import {
   ScrollView,
   FlatList
 } from "react-native";
-import Header from "../Header/header";
+import Header from "../Header/miniHeader";
 import { themeColor } from "../../assets/theme/themeSettings";
-import StarRating from "react-native-star-rating";
 import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
 
 const { height, width } = Dimensions.get("window");
@@ -49,15 +48,9 @@ export default class cart extends Component {
     if(this.state.products.length==0){
       return (
         <View>
-        <Header
-          title="Cart"
-          backButton={() => this.props.navigation.goBack()}
-          rightButtonLogout={()=>{
-            firebase.auth().signOut()
-            this.props.navigation.navigate('Login')
-          }}
-
-        />
+        <Header title="Cart" 
+        backButton={()=>this.props.navigation.goBack()}
+       />
         <View style={{alignItems:'center',color:themeColor,justifyContent:'center'}}>
         <Text style={{fontSize:20,fontWeight:'bold'}}>The cart is empty.</Text>
 
@@ -69,7 +62,11 @@ export default class cart extends Component {
       <View>
         <Header
           title="Cart"
-          backButton={() => this.props.navigation.goBack()}
+          backButton={() => {
+            this.props.navigation.navigate('Drawer', {
+            onGoBack: () => this.setState({cart:[]}),
+          })
+        }}
         />
         <ScrollView>
           <FlatList
@@ -79,7 +76,7 @@ export default class cart extends Component {
                 <View style={styles.imageCon}>
                   <Image
                     style={styles.image}
-                    source={require("../../assets/310.jpg")}
+                    source={{uri:item.image}}
                   />
                 </View>
                 <View style={styles.productCon}>
@@ -88,18 +85,6 @@ export default class cart extends Component {
                       <Text style={{ color: themeColor, fontWeight: "800" }}>
                         {item.name}
                       </Text>
-                      <StarRating
-                        starSize={16}
-                        disabled={false}
-                        fullStarColor="gold"
-                        emptyStar={"ios-star-outline"}
-                        fullStar={"ios-star"}
-                        halfStar={"ios-star-half"}
-                        iconSet={"Ionicons"}
-                        maxStars={5}
-                        rating={item.rating}
-                        selectedStar={rating => this.onStarRatingPress(rating)}
-                      />
                       <Text numberOfLines={3}>{item.content} </Text>
                     </View>
                     <View
@@ -134,13 +119,6 @@ export default class cart extends Component {
                         justifyContent: "space-around"
                       }}
                     >
-                      <TouchableOpacity>
-                        <FontAwesome
-                          name="heart"
-                          size={24}
-                          color={themeColor}
-                        />
-                      </TouchableOpacity>
                       <TouchableOpacity>
                         <Ionicons name="md-cart" size={24} color="grey" />
                       </TouchableOpacity>
