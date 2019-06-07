@@ -24,7 +24,7 @@ export default props => {
       <View style={styles.headerView}>
         <View style={{ width: width * 0.25 }}>
           <TouchableOpacity onPress={props.backButton}>
-            <Ionicons name="ios-arrow-back" size={32} color="#fff" />
+            <Ionicons name="md-menu" size={32} color="#fff" />
           </TouchableOpacity>
         </View>
         <View>

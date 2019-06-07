@@ -1,45 +1,79 @@
-import React from "react";
-import { Text, View, Modal, TouchableHighlight, Dimensions, StyleSheet } from "react-native";
+import React,{Component} from "react";
+import { Text,TextInput, View, Dimensions, StyleSheet,Image } from "react-native";
+import Modal from "react-native-modal";
+import { Button } from 'react-native-elements';
+import {themeColor} from '../../../assets/theme/themeSettings';
+import firebase from 'firebase';
+
 const {width,height} = Dimensions.get("window");
 
-const componentName = props => (
-    <View style = {styles.container}>
-    <Modal animationType = {"slide"} transparent = {false}
-       visible = {props.modalVisible}
-       onRequestClose = {() => { console.log("Modal has been closed.") } }>
-       
-       <View style = {styles.modal}>
-          <Text style = {styles.text}>Modal is open!</Text>
-          
-          <TouchableHighlight>
-             
-             <Text style = {styles.text}>Close Modal</Text>
-          </TouchableHighlight>
-       </View>
-    </Modal>
-    
-    <TouchableHighlight onPress = {() => {this.toggleModal(true)}}>
-       <Text style = {styles.text}>Open Modal</Text>
-    </TouchableHighlight>
- </View>
-);
+export default class NoteModal extends Component{
+   state={
+      note:"",
+      loading:false
+   }
+
+   addNoteToDatabase=()=>{
+      try {
+         this.setState({loading:true});
+         const user = firebase.auth().currentUser.uid;
+         firebase
+           .database()
+           .ref("notes/").push()
+           .set({
+             message: this.state.note,
+             uid: user
+           })
+           .then(() => {
+            this.setState({loading:false});
+             alert("Thank You.");
+           });
+       } catch (ex) {
+         this.setState({loading:false});
+         console.log(ex);
+       }
+   }
+
+   render(){
+      return (
+         <View style = {styles.container}>
+             <Modal isVisible={this.props.isModalVisible}>
+               <View style={{ flex: 1 }}>
+                 <Image
+                 style={{width:'100%',height:'90%'}}
+                 resizeMode="contain"
+                 source={{uri:"https://3.imimg.com/data3/XK/AU/MY-2619877/colorful-sticky-notes-500x500.jpg"}}/>
+                 <View style={{flexDirection:"row",justifyContent:"space-around"}}>
+                 <Button title="Submit" onPress={this.addNoteToDatabase} 
+                    buttonStyle={{backgroundColor:themeColor}}
+                    loading={this.state.loading}
+                    />
+                    <Button title="Cancel" onPress={this.props.toggleModal} 
+                    buttonStyle={{backgroundColor:"red"}}
+                    />
+     
+                 </View>
+                 <TextInput style={styles.children}
+                 placeholder="Write your note heres"
+                 placeholderTextColor="#ffffff"
+                 onChangeText={(txt)=>this.setState({note:txt})}
+                 />
+               </View>
+             </Modal>
+        </View>
+     );
+   }
+}
 
 const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         backgroundColor: '#ede3f2',
-        padding: 100
      },
-     modal: {
-        flex: 1,
-        alignItems: 'center',
-        backgroundColor: '#f7021a',
-        padding: 100
-     },
-     text: {
-        color: '#3f2949',
-        marginTop: 10
+     children:{
+        position:'absolute',
+        marginTop: "45%",
+        marginLeft:"20%"
      }
 });
 
-export default componentName;

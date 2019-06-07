@@ -16,68 +16,54 @@ import StarRating from "react-native-star-rating";
 import {themeColor} from "../../assets/theme/themeSettings";
 import * as firebase from 'firebase'
 import Modal from './modal/productsModal';
-
 const { width, height } = Dimensions.get("window");
 
 export default class products extends Component {
   state = {
-    rating: [
-      { name: "Vape", rating: 4 },
-      { name: "Charger", rating: 3 },
-      { name: "Car Battery", rating: 5 },
-      { name: "Vape", rating: 3 },
-      { name: "Charger", rating: 1 },
-      { name: "Car Battery", rating: 4 }
-    ],
     products: [
       {
         name: "Vape",
         image: "https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/batteries%2Fvape_battery.jpg?alt=media&token=7cd9b958-bd75-42a7-a834-d171360cdac2",
-        rate: 4.3,
-        content: "Some text some text some text",
+        rate: 5,
+        content: "All Vape lithium batteries",
         quantity:1
       },
       {
         name: "Charger",
         image: "https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/batteries%2Fcharger.jpg?alt=media&token=71cb150a-253e-466a-a5e6-54e980f08b92",
-        rate: 3.3,
-        content: "Some text some text some text Some text some text some text ",
+        rate: 12,
+        content: "Any kind of chargers like phone charger, laptop charger, etc... ",
         quantity:1
       },
       {
         name: "Car Batteries",
         image: "https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/batteries%2F068xd-car-battery-1.jpg?alt=media&token=7dd3db1a-f88c-403d-a008-99ed26a93fa9",
-        rate: 5,
+        rate: 20,
         content:
-          "Some text some text some text Some text some text some text Some text some text some text ",
+          "All car batteries",
           quantity:1
       },
       {
         name: "Phone Batteries",
         image: "https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/batteries%2Fphone_battery.jpg?alt=media&token=68670b74-8186-4c0c-ab7f-61ce7096dd4c",
-        rate: 4.3,
+        rate: 8,
         content:
-          "Some text some text some text Some text some text some text Some text some text some text Some text some text some text",
+          "All phone batteries",
           quantity:1
       },
       {
         name: "Other",
         image: "https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/batteries%2Fother.png?alt=media&token=cf6a06cf-c49c-4e33-b9f2-05e26b439263",
-        rate: 4.8,
-        content: "Other type of batteries",
+        rate: "??",
+        content: "Other types of batteries",
         quantity:1
       },
     ],
     cart:[
 
     ],
+    modalVisibility:false,
   };
-
-  onStarRatingPress(rating) {
-    this.setState({
-      starCount: rating
-    });
-  }
 
   addingProductToCart=(product)=>{
     const {cart} = this.state;
@@ -89,19 +75,23 @@ export default class products extends Component {
       newArray.push(product);
       this.setState({cart:newArray})
     }
-  }  
+  }
 
+_modalToggle=()=>{
+  this.setState({modalVisibility:!this.state.modalVisibility})
+}
   render() {
-    const {cart,products} = this.state;
+    const {cart,products,modalVisibility} = this.state;
     return (
       <View>
         <Header title="Products" 
         badgeValue={cart.length}
+        rightButtonChat={this._modalToggle}
         rightButtonCart={()=>this.props.navigation.navigate('Cart',cart)}
        />
         <View style={styles.top}>
           <Image
-            source={require("../../assets/MaskGroup2.png")}
+            source={{uri:"https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/deadBattery.gif?alt=media&token=ead1ef24-d8ac-4faa-9c84-d78e0054d735"}}
             style={styles.topImage}
           />
         </View>
@@ -110,44 +100,24 @@ export default class products extends Component {
             style={{ height: 32, paddingVertical: 6, paddingHorizontal: 12 }}
           >
             <Text style={{ color: themeColor, fontSize: 20, fontWeight: "700" }}>
-              Best Seller
+               Batteries we accept:
             </Text>
           </View>
           <ScrollView horizontal={true}>
             <FlatList
               horizontal={true}
-              data={this.state.rating}
+              data={this.state.products}
               renderItem={({ item, index }) => (
                 <View style={styles.midCom}>
                   <Image
-                    source={require("../../assets/310.jpg")}
+                    source={{uri:item.image}}
                     style={styles.midImage}
                   />
                   <View
                     style={{
-                      alignItems: "center",
                       width: width * 0.3 - 12
                     }}
                   >
-                    <Text style={{ color: themeColor }}>{item.name}</Text>
-                  </View>
-                  <View
-                    style={{
-                      width: width * 0.3 - 12
-                    }}
-                  >
-                    <StarRating
-                      starSize={16}
-                      disabled={false}
-                      fullStarColor="gold"
-                      emptyStar={"ios-star-outline"}
-                      fullStar={"ios-star"}
-                      halfStar={"ios-star-half"}
-                      iconSet={"Ionicons"}
-                      maxStars={5}
-                      rating={item.rating}
-                      selectedStar={rating => this.onStarRatingPress(rating)}
-                    />
                   </View>
                 </View>
               )}
@@ -199,18 +169,7 @@ export default class products extends Component {
                         width: width * 0.3
                       }}
                     >
-                      <StarRating
-                        starSize={16}
-                        disabled={false}
-                        fullStarColor="gold"
-                        emptyStar={"ios-star-outline"}
-                        fullStar={"ios-star"}
-                        halfStar={"ios-star-half"}
-                        iconSet={"Ionicons"}
-                        maxStars={5}
-                        rating={item.rate}
-                        selectedStar={rating => this.onStarRatingPress(rating)}
-                      />
+                    <Text>Points:{item.rate}</Text>
                     </View>
                     <View
                       style={{
@@ -226,6 +185,9 @@ export default class products extends Component {
             />
             <View style={{ height: 40 }} />
           </ScrollView>
+          <Modal isModalVisible={this.state.modalVisibility}
+                    toggleModal={this._modalToggle}
+                    />
         </View>
       </View>
     );
@@ -255,13 +217,14 @@ const styles = StyleSheet.create({
   },
   midImage: {
     resizeMode: "cover",
-    height: height * 0.1,
-    width: width * 0.3 - 12,
+    height: height * 0.2 - 24,
+    width: width * 0.3,
     borderRadius: 8,
     borderColor: themeColor,
     borderWidth: 1
   },
   bottom: {
+    marginTop: "3%",
     height: height * 0.4,
     width: width
   },
