@@ -1,4 +1,4 @@
-export const themeColor = "#83AB30"
+export const themeColor = "#07052A"
 
 export const login = {
     textColor:'#FFFFFF',

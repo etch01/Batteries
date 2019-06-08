@@ -24,7 +24,7 @@ const DrawerNavigation = createDrawerNavigator(
 
   {
     contentComponent: CustomDrawerContentComponent,
-    drawerPosition: "right",
+    drawerPosition: "left",
     drawerWidth: width * 0.7
   }
 );

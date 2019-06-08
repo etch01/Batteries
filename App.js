@@ -4,7 +4,8 @@ import Navigator from './components/navigation/stackNavigator';
 import fbConfig from './components/Firebase/config';
 import firebase from 'firebase';
 firebase.initializeApp(fbConfig);
-import Map from './components/Map/map';
+//import Map from './components/Map/map';
+import Admin from './components/Admin/allReuests';
 export default class App extends React.Component {
   render() {
     console.ignoredYellowBox = [
@@ -13,6 +14,7 @@ export default class App extends React.Component {
     return (
       //<Map/>
       <Navigator/>
+      //<Admin/>
     );
   }
 }
