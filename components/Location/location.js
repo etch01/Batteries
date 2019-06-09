@@ -61,7 +61,7 @@ export default class location extends Component {
       }).then(()=>{
         this.setState({loading:false})
         Alert.alert("Success","Order placed successfully ! we will contact you soon.");
-        this.props.navigation.navigate('Products');
+        this.props.navigation.navigate('Products',{cart:[]});
       })
       .catch(error=>{
         this.setState({loading:false})

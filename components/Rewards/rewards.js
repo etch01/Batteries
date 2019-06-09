@@ -20,49 +20,22 @@ const { width, height } = Dimensions.get("window");
 export default class Rewards extends Component {
   state = {
     products: [
-      {
-        name: "Vape",
-        image: "https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/batteries%2Fvape_battery.jpg?alt=media&token=7cd9b958-bd75-42a7-a834-d171360cdac2",
-        rate: 15,
-        content: "Exchange points into New vape battery",
-        quantity:1
-      },
-      {
-        name: "Charger",
-        image: "https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/batteries%2Fcharger.jpg?alt=media&token=71cb150a-253e-466a-a5e6-54e980f08b92",
-        rate: 22,
-        content: "Exchange points into New Charger ",
-        quantity:1
-      },
-      {
-        name: "Car Batteries",
-        image: "https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/batteries%2F068xd-car-battery-1.jpg?alt=media&token=7dd3db1a-f88c-403d-a008-99ed26a93fa9",
-        rate: 40,
-        content:
-          "Exchange points into a car battery",
-          quantity:1
-      },
-      {
-        name: "Phone Batteries",
-        image: "https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/batteries%2Fphone_battery.jpg?alt=media&token=68670b74-8186-4c0c-ab7f-61ce7096dd4c",
-        rate: 30,
-        content:
-          "Exchange points into New phone battery",
-          quantity:1
-      },
-      {
-        name: "Money",
-        image: "https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/batteries%2Fother.png?alt=media&token=cf6a06cf-c49c-4e33-b9f2-05e26b439263",
-        rate: "20",
-        content: "Exchange points into Money (1 pound for each 20 point)",
-        quantity:1
-      },
+
     ],
     cart:[
 
     ],
+    loading:false,
     modalVisibility:false,
+    headerImage:"https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/gift.gif?alt=media&token=55310a28-2073-447f-b52c-156be50c23d9"
   };
+
+  componentWillMount=()=>{
+    this.setState({loading:true});
+    firebase.database().ref("rewards").on("value",(snap)=>{
+      this.setState({products:snap.val().rewards,loading:false})
+    })
+  }
 
   addingProductToCart=(product)=>{
     const {cart} = this.state;
@@ -77,7 +50,7 @@ export default class Rewards extends Component {
   }
 
   render() {
-    const {cart,products,modalVisibility} = this.state;
+    const {cart} = this.state;
     return (
       <View>
         <Header title="Rewards" 
@@ -86,7 +59,7 @@ export default class Rewards extends Component {
        />
         <View style={styles.top}>
           <Image
-            source={{uri:"https://firebasestorage.googleapis.com/v0/b/batteries-5b258.appspot.com/o/gift.gif?alt=media&token=55310a28-2073-447f-b52c-156be50c23d9"}}
+            source={{uri:this.state.headerImage}}
             style={styles.topImage}
           />
         </View>
@@ -134,7 +107,7 @@ export default class Rewards extends Component {
                         width: width * 0.3
                       }}
                     >
-                    <Text>Points:{item.rate}</Text>
+                    <Text>Points:{item.points}</Text>
                     </View>
                     <View
                       style={{

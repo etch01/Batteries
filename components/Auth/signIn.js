@@ -157,7 +157,6 @@ export default class Login extends Component {
           <View style={{ alignItems: "center" }}>
             <Image source={require("../../assets/images/capture.png")} />
             <Text style={styles.templateText}>
-              Lorem dolor sit amet consectetur adipisicing elit, sed do.
             </Text>
           </View>
         </View>
@@ -233,7 +232,7 @@ export default class Login extends Component {
             onPress={() => this.props.navigation.navigate("Type")}
           >
             <Text style={{ textAlign: "center", color: login.textColor }}>
-              Already have an account?Sign up
+              don't have an account?Sign up
             </Text>
           </TouchableOpacity>
         </View>

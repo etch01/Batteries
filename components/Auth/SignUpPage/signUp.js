@@ -122,7 +122,6 @@ export default class SignUp extends Component {
 
   //Gender Modal visibility switch
   setModalVisible(visible) {
-    console.log('here')
     this.setState({modalVisible:visible});
   }
 
@@ -193,7 +192,7 @@ export default class SignUp extends Component {
             <TextInput
               style={styles.inputContainer}
               onChangeText={val => this.setState({ gender: val })}
-              placeholder="Gender"
+              placeholder={this.state.gender}
               placeholderTextColor="#fff"
             />
             <FontAwesome style={{marginTop:'2%',marginLeft:'-4%'}} name="angle-down" size={16} color="#fff" />
@@ -222,7 +221,7 @@ export default class SignUp extends Component {
         </View>
         <Modal
           animationType="slide"
-          style={{width:100,height:100}}
+          style={{width:100,height:100,backgroundColor:"black"}}
           transparent={true}
           visible={this.state.modalVisible}
           onRequestClose={() => {
@@ -234,9 +233,22 @@ export default class SignUp extends Component {
           justifyContent: 'center',
           alignItems: 'center'}}>
     <View style={{
-            width: 300,
-            height: 300}}>
-      <Button title='X' onPress={()=>this.setModalVisible(!this.state.modalVisible)}/>
+            height:"30%",
+            justifyContent:"space-around",
+            width:"100%",
+            paddingLeft:"20%",
+            paddingRight:"20%",
+            backgroundColor:"rgb(255, 255, 255, 0.8)",
+            }}>
+      <Button  buttonStyle={{backgroundColor:"#ffffff"}} titleStyle={{color:'black'}} title='Male' onPress={()=>{
+        this.setModalVisible(!this.state.modalVisible);
+        this.setState({gender:"Male"})
+      }}/>
+      <Button buttonStyle={{backgroundColor:"#ffffff"}} title='Female' titleStyle={{color:'black'}} onPress={()=>{
+        this.setModalVisible(!this.state.modalVisible);
+        this.setState({gender:"Female"})
+        }}/>
+
     </View>
             </View>
         </Modal>

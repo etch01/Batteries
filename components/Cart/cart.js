@@ -143,7 +143,7 @@ export default class cart extends Component {
                         this.props.navigation.navigate('Location',products)
                       }
                       else{
-                        alert("The minimum points are: "+30)
+                        alert("The minimum points are: "+this.state.minPoints)
                       }
                     }}
                     >

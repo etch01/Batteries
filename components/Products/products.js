@@ -30,6 +30,15 @@ export default class products extends Component {
     loading: false,
   };
 
+  //refresh on navigation
+  refresh=()=>{
+    
+  }
+
+  componentWillReceiveProps=()=>{
+    this.setState({cart:[]});
+  }
+
   componentWillMount=()=>{
     this.setState({loading:true});
     const uid = firebase.auth().currentUser.uid;
@@ -43,7 +52,7 @@ export default class products extends Component {
       this.setState({products:snap.val().allBatteries,loading:false})
     })
   }
-
+  //Fill the cart
   addingProductToCart=(product)=>{
     const {cart} = this.state;
     const newArray = [...cart];
