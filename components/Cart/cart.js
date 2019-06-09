@@ -7,12 +7,13 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  FlatList
+  FlatList,
+  Picker
 } from "react-native";
 import Header from "../Header/miniHeader";
 import { themeColor } from "../../assets/theme/themeSettings";
 import { Feather, Ionicons } from "@expo/vector-icons";
-
+import firebase from 'firebase';
 const { height, width } = Dimensions.get("window");
 
 export default class cart extends Component {
@@ -20,13 +21,14 @@ export default class cart extends Component {
     products: [
     ],
     totalPoints:0,
-    minPoints:30,
-    units:["Single","Kg","lbs","Tonne"],
-    singleElement:""
+    minPoints:0,
   };
 
   componentWillMount=()=>{
     var pointsArray = []
+    firebase.database().ref("settings/").on("value",snap=>{
+      this.setState({minPoints:snap.val().minPoints})
+    })
     let pts = this.props.navigation.state.params.map(item=>pointsArray.push(item.rate))
     this.setState({products:this.props.navigation.state.params,totalPoints:pointsArray.reduce((a, b) => a + b, 0)});
   }
@@ -122,9 +124,6 @@ export default class cart extends Component {
                           color={themeColor}
                         />
                       </TouchableOpacity>
-                      <TouchableOpacity onPress={()=>this.handleArrayElements(this.state.units,this.state.units.indexOf(this.state.singleElement))}>
-                        <Text>Unit</Text>
-                      </TouchableOpacity>
                     </View>
                   </View>
                   <View style={styles.productIcon}>
@@ -213,5 +212,5 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center"
-  }
+  },
 });

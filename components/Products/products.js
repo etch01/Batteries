@@ -32,6 +32,13 @@ export default class products extends Component {
 
   componentWillMount=()=>{
     this.setState({loading:true});
+    const uid = firebase.auth().currentUser.uid;
+    firebase.database().ref("users/"+uid).on("value",elements=>{
+      if (elements.val().admin){
+        this.setState({loading:false});
+        this.props.navigation.navigate("Admin");
+      }
+    })
     firebase.database().ref("categories").on("value",(snap)=>{
       this.setState({products:snap.val().allBatteries,loading:false})
     })
