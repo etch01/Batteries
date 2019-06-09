@@ -9,7 +9,7 @@ import {
   ActivityIndicator,Alert
 } from "react-native";
 import { Constants, Location, Permissions,Notifications } from "expo";
-import Header from "../Header/header";
+import Header from "../Header/miniHeader";
 import { themeColor } from "../../assets/theme/themeSettings";
 import { Feather } from "@expo/vector-icons";
 import * as firebase from 'firebase';
@@ -23,7 +23,8 @@ export default class location extends Component {
     editAddressInput:true,
     addressInputPlaceholder:'Location',
     loading:false,
-    locationLoading:false
+    locationLoading:false,
+    errorMessage:""
   }
 
   //Getting Location of the current User.
@@ -45,24 +46,30 @@ export default class location extends Component {
    };
 
    confirmingTheOrder=()=>{
-    this.setState({loading:true})
-    const uid = firebase.auth().currentUser.uid;
-    firebase.database().ref('orders/').push().set({
-      user:uid,
-      location:this.state.location === undefined || this.state.location.length == 0?{latitude:0,longitude:0}:this.state.location,
-      address:this.state.address,
-      phone:this.state.phone,
-      order:this.props.navigation.state.params
-    }).then(()=>{
-      this.setState({loading:false})
-      Alert.alert("Success","Order placed successfully ! we will contact you soon.");
-      this.props.navigation.navigate('Products');
-    })
-    .catch(error=>{
-      this.setState({loading:false})
-      console.log(error)});
-      Alert.alert("Success","Order placed successfully ! we will contact you soon.");
-      this.props.navigation.navigate('Products');
+     if (this.state.phone==''){
+        this.setState({errorMessage:"Phone number is required."})
+     }
+     else{
+      this.setState({loading:true,errorMessage:''})
+      const uid = firebase.auth().currentUser.uid;
+      firebase.database().ref('orders/').push().set({
+        user:uid,
+        location:this.state.location === undefined || this.state.location.length == 0?{latitude:0,longitude:0}:this.state.location,
+        address:this.state.address,
+        phone:this.state.phone,
+        order:this.props.navigation.state.params
+      }).then(()=>{
+        this.setState({loading:false})
+        Alert.alert("Success","Order placed successfully ! we will contact you soon.");
+        this.props.navigation.navigate('Products');
+      })
+      .catch(error=>{
+        this.setState({loading:false})
+        console.log(error)});
+        Alert.alert("Success","Order placed successfully ! we will contact you soon.");
+        this.props.navigation.navigate('Products');
+     }
+
    }
 
   render() {
@@ -87,11 +94,12 @@ export default class location extends Component {
           placeholder="Mobile No"
           placeholderTextColor={themeColor}
         />
+        <Text style={{color:"red",alignSelf: "center",marginTop:5}}>{this.state.errorMessage}</Text>
         <View style={{ flexDirection: "row", paddingHorizontal: width * 0.1 }}>
           <TouchableOpacity style={styles.myButton}
           onPress={this.confirmingTheOrder}
           >
-            {this.state.loading?<ActivityIndicator/>:<Text style={{ color: themeColor }}>Follow</Text>}
+            {this.state.loading?<ActivityIndicator/>:<Text style={{ color: themeColor }}>Confirm</Text>}
           </TouchableOpacity>
           <TouchableOpacity style={[styles.myButton, { flexDirection: "row" }]}
             onPress={this._getLocationAsync}
@@ -102,6 +110,7 @@ export default class location extends Component {
             </Text>}
           </TouchableOpacity>
         </View>
+
       </View>
     );
   }

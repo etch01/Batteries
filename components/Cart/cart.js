@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import Header from "../Header/miniHeader";
 import { themeColor } from "../../assets/theme/themeSettings";
-import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 
 const { height, width } = Dimensions.get("window");
 
@@ -20,7 +20,9 @@ export default class cart extends Component {
     products: [
     ],
     totalPoints:0,
-    minPoints:30
+    minPoints:30,
+    units:["Single","Kg","lbs","Tonne"],
+    singleElement:""
   };
 
   componentWillMount=()=>{
@@ -28,7 +30,7 @@ export default class cart extends Component {
     let pts = this.props.navigation.state.params.map(item=>pointsArray.push(item.rate))
     this.setState({products:this.props.navigation.state.params,totalPoints:pointsArray.reduce((a, b) => a + b, 0)});
   }
-
+  //Plus button
   increaseQuantityHandler=(currentQuantity,itemName,index)=>{
     const {products} = this.state;
     const newArray = [...products];
@@ -37,7 +39,7 @@ export default class cart extends Component {
     let neoPoints = newArray[index].rate + oldPoints;
     this.setState({products:newArray,totalPoints:neoPoints});
   }
-
+  //Minus button
   decreaseQuantityHandler=(currentQuantity,itemName,index)=>{
     const {products} = this.state;
     const newArray = [...products];
@@ -119,6 +121,9 @@ export default class cart extends Component {
                           size={32}
                           color={themeColor}
                         />
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={()=>this.handleArrayElements(this.state.units,this.state.units.indexOf(this.state.singleElement))}>
+                        <Text>Unit</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
