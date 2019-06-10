@@ -30,9 +30,9 @@ export default class products extends Component {
     loading: false,
   };
 
-  //refresh on navigation
-  refresh=()=>{
-    
+  //refresh on navigation go back
+  refresh=(data)=>{
+    this.setState({cart:data})
   }
 
   componentWillReceiveProps=()=>{
@@ -81,7 +81,7 @@ _modalToggle=()=>{
         menu={() =>
           this.props.navigation.toggleDrawer()
         }
-        rightButtonCart={()=>this.props.navigation.navigate('Cart',cart)}
+        rightButtonCart={()=>this.props.navigation.navigate('Cart',{cart,refresh:this.refresh})}
        />
         <View style={styles.top}>
           <Image
@@ -97,7 +97,7 @@ _modalToggle=()=>{
                Batteries we accept:
             </Text>
           </View>
-        <ScrollView horizontal={true}>
+        <ScrollView horizontal={true} style={{ paddingLeft: 12 }}>
           <FlatList
             horizontal={true}
             data={this.state.products}
@@ -107,12 +107,6 @@ _modalToggle=()=>{
                   source={{uri:item.image}}
                   style={styles.midImage}
                 />
-                <View
-                  style={{
-                    width: width * 0.3 - 12
-                  }}
-                >
-                </View>
               </View>
             )}
             keyExtractor={(item, index) => index.toString()}
@@ -120,7 +114,7 @@ _modalToggle=()=>{
         </ScrollView>
       </View>
       <View style={styles.bottom}>
-        <ScrollView>
+        <ScrollView  >
           <FlatList
             data={this.state.products}
             renderItem={({ item, index }) => (
@@ -205,14 +199,14 @@ const styles = StyleSheet.create({
   midCom: {
     height: height * 0.24 - 30,
     width: width * 0.3,
-    flexDirection: "column",
     paddingVertical: 6,
-    paddingHorizontal: 12
+    paddingRight: 12,
+
   },
   midImage: {
-    resizeMode: "cover",
-    height: height * 0.2 - 24,
-    width: width * 0.3,
+    resizeMode: "contain",
+    height: height * 0.24 - 42,
+    width: width * 0.3 - 24,
     borderRadius: 8,
     borderColor: themeColor,
     borderWidth: 1

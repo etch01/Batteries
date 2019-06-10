@@ -64,7 +64,6 @@ export default class Rewards extends Component {
           />
         </View>
         <View style={styles.bottom}>
-          <ScrollView>
             <FlatList
               data={this.state.products}
               renderItem={({ item, index }) => (
@@ -122,7 +121,7 @@ export default class Rewards extends Component {
               keyExtractor={(item, index) => index.toString()}
             />
             <View style={{ height: 40 }} />
-          </ScrollView>
+
 
         </View>
       </View>
@@ -143,7 +142,7 @@ const styles = StyleSheet.create({
 
   bottom: {
     marginTop: "3%",
-    //height: height * 0.4,
+    height: height * 0.62,
     width: width
   },
   botCom: {

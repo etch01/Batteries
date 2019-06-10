@@ -28,7 +28,6 @@ export default class Login extends Component {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         this.props.navigation.navigate("Products");
-        //console.log(user.providerData);
       } else {
         this.setState({ loading: false });
       }
@@ -122,12 +121,8 @@ export default class Login extends Component {
             .on("value", snap => {
               if (snap.val() !== null) {
                 this.setState({ loading: true });
-                //this.setState({ loading: true });
-                //this.props.navigation.navigate("Products");
               } else {
-                this.setState({ loading: true });
-                //this.props.navigation.navigate("Products");
-              }
+                this.setState({ loading: true });              }
             });
         })
         .catch(err => {
@@ -154,8 +149,15 @@ export default class Login extends Component {
               </TouchableOpacity>
             </View>
           </View>
-          <View style={{ alignItems: "center" }}>
-            <Image source={require("../../assets/images/capture.png")} />
+          <View style={{ alignItems: "center",height:height/3}}>
+            <Image
+            style={{
+              flex: 1,
+              width: 100,
+              height: 100,
+              resizeMode: 'contain'
+            }}
+             source={require("../../assets/images/capture.png")} />
             <Text style={styles.templateText}>
             </Text>
           </View>

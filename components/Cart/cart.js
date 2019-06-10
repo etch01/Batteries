@@ -29,8 +29,8 @@ export default class cart extends Component {
     firebase.database().ref("settings/").on("value",snap=>{
       this.setState({minPoints:snap.val().minPoints})
     })
-    let pts = this.props.navigation.state.params.map(item=>pointsArray.push(item.rate))
-    this.setState({products:this.props.navigation.state.params,totalPoints:pointsArray.reduce((a, b) => a + b, 0)});
+    let pts = this.props.navigation.state.params.cart.map(item=>pointsArray.push(item.rate))
+    this.setState({products:this.props.navigation.state.params.cart,totalPoints:pointsArray.reduce((a, b) => a + b, 0)});
   }
   //Plus button
   increaseQuantityHandler=(currentQuantity,itemName,index)=>{
@@ -63,7 +63,9 @@ export default class cart extends Component {
       return (
         <View>
         <Header title="Cart" 
-        backButton={()=>this.props.navigation.goBack()}
+        backButton={()=>{
+          this.props.navigation.goBack();
+        }}
        />
         <View style={{alignItems:'center',color:themeColor,justifyContent:'center'}}>
         <Text style={{fontSize:20,fontWeight:'bold'}}>The cart is empty.</Text>
@@ -77,9 +79,8 @@ export default class cart extends Component {
         <Header
           title="Cart"
           backButton={() => {
-            this.props.navigation.navigate('Drawer', {
-            onGoBack: () => this.setState({cart:[]}),
-          })
+            this.props.navigation.navigate('Drawer')
+          this.props.navigation.state.params.refresh(this.state.products)
         }}
         />
         <ScrollView>
