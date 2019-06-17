@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "Batteries",
-    "slug": "batteries",
+    "name": "B.CO",
+    "slug": "my-BCO",
+    "description": "Dead battery ? No problem we will replace it for an amazing rewards or even for money.",
     "privacy": "public",
     "sdkVersion": "32.0.0",
     "platforms": [

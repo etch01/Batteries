@@ -11,6 +11,7 @@ import {
 import * as firebase from "firebase";
 import { themeColor, login } from "../../assets/theme/themeSettings";
 import Loading from "../Loading Page/loading";
+import Constants from "expo-constants";
 const { height, width } = Dimensions.get("window");
 
 import { Input, Button } from "react-native-elements";
@@ -20,7 +21,8 @@ export default class Login extends Component {
     name: "",
     password: "",
     loading: false,
-    errorMessage:''
+    errorMessage: "",
+    language: "Arabic"
   };
 
   componentWillMount = () => {
@@ -30,9 +32,11 @@ export default class Login extends Component {
         this.props.navigation.navigate("Products");
       } else {
         this.setState({ loading: false });
+        
       }
     });
   };
+
   //check if there is already a user
   componentDidMount = () => {
     firebase.auth().onAuthStateChanged(user => {
@@ -55,12 +59,10 @@ export default class Login extends Component {
             })
             .catch(error => console.log(error));
         }
-
-        //}
-        //})
       }
     });
   };
+
   //sign in function
   signInHandler(email, password) {
     try {
@@ -75,28 +77,45 @@ export default class Login extends Component {
           })
           .catch(error => {
             var err = error.code;
-            if (err == "auth/user-disabled") {
-              this.setState({errorMessage:"User has been banned."});
-            } else if (err == "auth/invalid-email") {
-              this.setState({errorMessage:"email is not correct."});
-            } else if (err == "auth/user-not-found") {
-              this.setState({errorMessage:"Email address doesn't exist."});
-            } else if (err == "auth/wrong-password") {
-              this.setState({errorMessage:"Incorrect password."});
+            if (this.state.language=="English"){
+              if (err == "auth/user-disabled") {
+                this.setState({ errorMessage: "User has been banned." });
+              } else if (err == "auth/invalid-email") {
+                this.setState({ errorMessage: "email is not correct." });
+              } else if (err == "auth/user-not-found") {
+                this.setState({ errorMessage: "Email address doesn't exist." });
+              } else if (err == "auth/wrong-password") {
+                this.setState({ errorMessage: "Incorrect password." });
+              }
+            }else{
+              if (err == "auth/user-disabled") {
+                this.setState({ errorMessage: "تم حظر المستخدم." });
+              } else if (err == "auth/invalid-email") {
+                this.setState({ errorMessage: "البريد الالكتروني غير صحيح." });
+              } else if (err == "auth/user-not-found") {
+                this.setState({ errorMessage: "البريد الالكتروني غير موجود." });
+              } else if (err == "auth/wrong-password") {
+                this.setState({ errorMessage: "الرقم السري غير صحيح ." });
+              }
             }
             this.setState({ loading: false });
           });
       } else {
-        this.setState({errorMessage:"Email or password cannot be empty."})
+        if (this.state.language=="English"){
+          this.setState({ errorMessage: "Email or password cannot be empty." });
+        }else{
+          this.setState({ errorMessage: "املأ الخانات المطلوبه." });
+        }
       }
     } catch (error) {
-      if(error.code){
-        this.setState({errorMessage:error.code})
-      }else{
-        this.setState({errorMessage:error})
+      if (error.code) {
+        this.setState({ errorMessage: error.code });
+      } else {
+        this.setState({ errorMessage: error });
       }
     }
   }
+
   //Facebook Login
   loginWithFacebook = async () => {
     //ENTER YOUR APP ID
@@ -122,7 +141,8 @@ export default class Login extends Component {
               if (snap.val() !== null) {
                 this.setState({ loading: true });
               } else {
-                this.setState({ loading: true });              }
+                this.setState({ loading: true });
+              }
             });
         })
         .catch(err => {
@@ -132,39 +152,91 @@ export default class Login extends Component {
     }
   };
 
+  selectEnglish = () => {
+    this.setState({ language: "English",errorMessage:"" });
+  };
+
+  selectArabic = () => {
+    this.setState({ language: "Arabic",errorMessage:"" });
+  };
+
   render() {
+    var inputDirection = "left";
+    if (this.state.language=="Arabic"){
+      inputDirection = "right"
+    };
     const { loading } = this.state;
     if (loading) {
-      return <Loading />;
+      return <Loading loadingMessage={this.state.language=="English"?"Loading...":"جار التحميل"}/>;
     }
     return (
       <View style={styles.mainContainer}>
+        <StatusBar backgroundColor="transparent" barStyle="light-content" />
         <View style={styles.upperPart}>
           <View style={styles.loginAndSkipText}>
-            <Text style={{ color: "transparent", flex: 1 }}>.</Text>
-            <Text style={styles.loginText}>Login</Text>
+            <View style={{ width: width * 0.3 }} />
+            <Text style={styles.loginText}>
+              {this.state.language == "Arabic" ? "تسجيل الدخول" : "Login"}
+            </Text>
             <View style={styles.skip}>
-              <TouchableOpacity style={{ marginRight: "10%" }}>
-                <Text style={styles.skipText}>Skip</Text>
+              <TouchableOpacity
+                style={{
+                  hitSlop: { top: 12, left: 12, bottom: 12, right: 12 }
+                }}
+                onPress={this.selectEnglish}
+              >
+                <Text
+                  style={[
+                    styles.skipText,
+                    {
+                      fontWeight:
+                        this.state.language == "English" ? "900" : "500"
+                    }
+                  ]}
+                >
+                  English
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  hitSlop: { top: 12, left: 12, bottom: 12, right: 12 }
+                }}
+                onPress={this.selectArabic}
+              >
+                <Text
+                  style={[
+                    styles.skipText,
+                    {
+                      fontWeight:
+                        this.state.language == "Arabic" ? "900" : "500"
+                    }
+                  ]}
+                >
+                  عربى
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
-          <View style={{ alignItems: "center",height:height/3}}>
+          <View style={{ alignItems: "center", height: height / 3 }}>
             <Image
-            style={{
-              flex: 1,
-              width: 100,
-              height: 100,
-              resizeMode: 'contain'
-            }}
-             source={require("../../assets/images/capture.png")} />
-            <Text style={styles.templateText}>
-            </Text>
+              style={{
+                flex: 1,
+                width: 100,
+                height: 100,
+                resizeMode: "contain"
+              }}
+              source={require("../../assets/images/capture.png")}
+            />
+            <Text style={styles.templateText} />
           </View>
         </View>
         <View style={styles.form}>
           <Input
-            placeholder="Email address"
+            placeholder={
+              this.state.language == "Arabic"
+                ? "البريدالالكترونى"
+                : "Email address"
+            }
             onChangeText={val => this.setState({ name: val })}
             leftIcon={{
               type: "font-awesome",
@@ -181,7 +253,9 @@ export default class Login extends Component {
             placeholderTextColor={login.textColor}
           />
           <Input
-            placeholder="Password"
+            placeholder={
+              this.state.language == "Arabic" ? "كلمه السر" : "Password"
+            }
             onChangeText={val => this.setState({ password: val })}
             secureTextEntry={true}
             leftIcon={{
@@ -191,28 +265,23 @@ export default class Login extends Component {
               size: 16,
               marginBottom: 5
             }}
-            labelStyle={{ color: login.textColor }}
+            labelStyle={{ 
+              color: login.textColor,
+             }}
             leftIconContainerStyle={{ justifyContent: "flex-end" }}
+            textAlign={inputDirection}
             inputStyle={styles.input}
             autoCapitalize="none"
             inputContainerStyle={{ borderBottomColor: login.inputBorderColor }}
             placeholderTextColor={login.textColor}
           />
-          <Text style={{color:'red',margin:'3%'}}>{this.state.errorMessage}</Text>
-          <TouchableOpacity style={{ flexDirection: "row-reverse" }}>
-            <Text
-              style={{
-                marginRight: "4%",
-                color: login.textColor,
-                marginTop: "2%"
-              }}
-            >
-              Forgot Password?
-            </Text>
-          </TouchableOpacity>
+          <Text style={{ color: "red", margin: "3%" }}>
+            {this.state.errorMessage}
+          </Text>
+
           <View style={styles.buttonGroup}>
             <Button
-              title="Login"
+              title={this.state.language == "Arabic" ? "تسجيل الدخول" : "Login"}
               onPress={() =>
                 this.signInHandler(this.state.name, this.state.password)
               }
@@ -220,7 +289,11 @@ export default class Login extends Component {
               titleStyle={{ color: themeColor }}
             />
             <Button
-              title="Login with Facebook"
+              title={
+                this.state.language == "Arabic"
+                  ? "تسجيل الدخول باستخدام الفيسبوك"
+                  : "Login with Facebook"
+              }
               onPress={this.loginWithFacebook}
               icon={{
                 type: "font-awesome",
@@ -231,10 +304,12 @@ export default class Login extends Component {
             />
           </View>
           <TouchableOpacity
-            onPress={() => this.props.navigation.navigate("Type")}
+            onPress={() => this.props.navigation.navigate("Type",this.state.language)}
           >
             <Text style={{ textAlign: "center", color: login.textColor }}>
-              don't have an account?Sign up
+              {this.state.language == "Arabic"
+                ? "ليس لديك حساب؟ اشترك الان"
+                : "don't have an account? Sign up now"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -246,7 +321,8 @@ export default class Login extends Component {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: themeColor
+    backgroundColor: themeColor,
+    paddingTop: Constants.statusBarHeight
   },
   upperPart: {
     alignItems: "center",
@@ -255,8 +331,6 @@ const styles = StyleSheet.create({
   },
   loginAndSkipText: {
     flexDirection: "row",
-    alignItems: "center",
-    marginTop: StatusBar.currentHeight,
     alignItems: "center",
     justifyContent: "space-between"
   },
@@ -269,14 +343,18 @@ const styles = StyleSheet.create({
     color: login.textColor,
     flex: 1,
     textAlign: "center",
-    fontWeight: "bold"
+    fontWeight: "bold",
+    fontSize: 16
   },
   skip: {
-    flex: 1,
-    flexDirection: "row-reverse"
+    width: width * 0.3,
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "flex-end"
   },
   skipText: {
-    color: login.textColor
+    color: login.textColor,
+    fontSize: 12
   },
   templateText: {
     color: login.textColor,

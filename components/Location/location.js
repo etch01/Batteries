@@ -6,81 +6,143 @@ import {
   Dimensions,
   TextInput,
   Text,
-  ActivityIndicator,Alert
+  ActivityIndicator,
+  Alert
 } from "react-native";
-import { Constants, Location, Permissions,Notifications } from "expo";
+import { Constants, Location, Permissions, Notifications } from "expo";
 import Header from "../Header/miniHeader";
 import { themeColor } from "../../assets/theme/themeSettings";
 import { Feather } from "@expo/vector-icons";
-import * as firebase from 'firebase';
+import * as firebase from "firebase";
 
 const { height, width } = Dimensions.get("window");
 export default class location extends Component {
   state = {
-    location:[],
-    phone:'',
-    address:'',
-    editAddressInput:true,
-    addressInputPlaceholder:'Location',
-    loading:false,
-    locationLoading:false,
-    errorMessage:""
-  }
+    location: [],
+    phone: "",
+    address: "",
+    editAddressInput: true,
+    addressInputPlaceholder: "Location",
+    loading: false,
+    locationLoading: false,
+    errorMessage: "",
+    language: "English"
+  };
 
   //Getting Location of the current User.
   _getLocationAsync = async () => {
-    this.setState({locationLoading:true})
+    this.setState({ locationLoading: true });
     //asking user for permission on using location service
-     let { status } = await Permissions.askAsync(Permissions.LOCATION);
-     if (status !== "granted") {
-       this.setState({
-         errorMessage: "Permission to access location was denied",
-         locationLoading:false
-       });
-     }
-     //adding high accuracy for new andriod systems
-     let location = await Location.getCurrentPositionAsync({
-       enableHighAccuracy: true
-     });
-     this.setState({ location: location.coords,editAddressInput:false,addressInputPlaceholder:'We got your location',locationLoading:false });
-   };
+    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+    if (status !== "granted") {
+      if(this.state.language=="English"){
+        this.setState({
+          errorMessage: "Permission to access location was denied",
+          locationLoading: false
+        });
+      }
+      else{
+        this.setState({
+          errorMessage: "الدخول علي الموقع الحالي مطلوب",
+          locationLoading: false
+        });
+      }
+    }
+    //adding high accuracy for new andriod systems
+    let location = await Location.getCurrentPositionAsync({
+      enableHighAccuracy: true
+    });
+    this.setState({
+      location: location.coords,
+      editAddressInput: false,
+      addressInputPlaceholder: this.state.language=="English"?"We got your location":"حصلنا علي موقعك الحالي",
+      locationLoading: false
+    });
+  };
 
-   confirmingTheOrder=()=>{
-     if (this.state.phone==''){
-        this.setState({errorMessage:"Phone number is required."})
-     }
-     else{
-      this.setState({loading:true,errorMessage:''})
-      const uid = firebase.auth().currentUser.uid;
-      firebase.database().ref('orders/').push().set({
-        user:uid,
-        location:this.state.location === undefined || this.state.location.length == 0?{latitude:0,longitude:0}:this.state.location,
-        address:this.state.address,
-        phone:this.state.phone,
-        order:this.props.navigation.state.params
-      }).then(()=>{
-        this.setState({loading:false})
-        Alert.alert("Success","Order placed successfully ! we will contact you soon.");
-        this.props.navigation.navigate('Products',{cart:[]});
+  componentWillMount=()=>{
+          //Get user language
+        const uid = firebase.auth().currentUser.uid;
+        firebase.database().ref("users/"+uid).on("value",
+        snap=>{
+          var language = snap.val().language;
+          if (snap.val().language == "Arabic"){
+            this.setState({language,addressInputPlaceholder:"العنوان"});
+          }else{
+            this.setState({language,addressInputPlaceholder:"Address"});
+          }
       })
-      .catch(error=>{
-        this.setState({loading:false})
-        console.log(error)});
-        Alert.alert("Success","Order placed successfully ! we will contact you soon.");
-        this.props.navigation.navigate('Products');
-     }
+  }
 
-   }
+  confirmingTheOrder = () => {
+    if (this.state.phone == "") {
+      if(this.state.language=="English"){
+        this.setState({ errorMessage: "Phone number is required." });
+      }else{
+        this.setState({ errorMessage: "رقم الهاتف الزامي." });
+      }
+    } else {
+      this.setState({ loading: true, errorMessage: "" });
+      const uid = firebase.auth().currentUser.uid;
+      firebase
+        .database()
+        .ref("orders/")
+        .push()
+        .set({
+          user: uid,
+          location:
+            this.state.location === undefined || this.state.location.length == 0
+              ? { latitude: 0, longitude: 0 }
+              : this.state.location,
+          address: this.state.address,
+          phone: this.state.phone,
+          order: this.props.navigation.state.params
+        })
+        .then(() => {
+          this.setState({ loading: false });
+          if (this.state.language=="English"){
+            Alert.alert(
+              "Success",
+              "Order placed successfully ! we will contact you soon."
+            );
+          }
+          else{
+            Alert.alert(
+              "شكرا لك",
+              "تم تنفيذ طلبك بنجاح و سنتواصل معك في اقرب وقت."
+            );
+          }
+          this.props.navigation.navigate("Products", { cart: [] });
+        })
+        .catch(error => {
+          this.setState({ loading: false });
+          console.log(error);
+        });
+        if (this.state.language=="English"){
+          Alert.alert(
+            "Success",
+            "Order placed successfully ! we will contact you soon."
+          );
+        }
+        else{
+          Alert.alert(
+            "شكرا لك",
+            "تم تنفيذ طلبك بنجاح و سنتواصل معك في اقرب وقت."
+          );
+        }
+      this.props.navigation.navigate("Products");
+    }
+  };
 
   render() {
     return (
       <View>
         <Header
-          title="Location"
+          title={this.state.language=="Arabic"?"تأكيد الطلبات":"Confirm"}
           backButton={() => this.props.navigation.goBack()}
         />
         <TextInput
-        onChangeText={(val)=>this.setState({address:val})}
+          onChangeText={val => this.setState({ address: val })}
           direction="rtl"
           style={styles.inputContainer}
           placeholder={this.state.addressInputPlaceholder}
@@ -88,29 +150,44 @@ export default class location extends Component {
           editable={this.state.editAddressInput}
         />
         <TextInput
-          onChangeText={(val)=>this.setState({phone:val})}
+          onChangeText={val => this.setState({ phone: val })}
           direction="rtl"
           style={styles.inputContainer}
-          placeholder="Mobile No"
+          placeholder={this.state.language=="Arabic"?"رقم التليفون":"Mobile No"}
           placeholderTextColor={themeColor}
         />
-        <Text style={{color:"red",alignSelf: "center",marginTop:5}}>{this.state.errorMessage}</Text>
+        <Text style={{ color: "red", alignSelf: "center", marginTop: 5 }}>
+          {this.state.errorMessage}
+        </Text>
         <View style={{ flexDirection: "row", paddingHorizontal: width * 0.1 }}>
-          <TouchableOpacity style={styles.myButton}
-          onPress={this.confirmingTheOrder}
+          <TouchableOpacity
+            style={styles.myButton}
+            onPress={this.confirmingTheOrder}
           >
-            {this.state.loading?<ActivityIndicator/>:<Text style={{ color: themeColor }}>Confirm</Text>}
+            {this.state.loading ? (
+              <ActivityIndicator />
+            ) : (
+              <Text style={{ color: themeColor }}>
+                {this.state.language == "Arabic" ? "تأكيد" : "Confirm"}
+              </Text>
+            )}
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.myButton, { flexDirection: "row" }]}
+          <TouchableOpacity
+            style={[styles.myButton, { flexDirection: "row" }]}
             onPress={this._getLocationAsync}
           >
             <Feather name="map-pin" color={themeColor} />
-            {this.state.locationLoading?<ActivityIndicator/>:<Text style={{ color: themeColor, paddingLeft: 4 }}>
-              Get my current location
-            </Text>}
+            {this.state.locationLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <Text style={{ color: themeColor, paddingLeft: 4 }}>
+                {this.state.language == "Arabic"
+                  ? "احصل على موقعي الحالي"
+                  : "Get my current location"}
+              </Text>
+            )}
           </TouchableOpacity>
         </View>
-
       </View>
     );
   }

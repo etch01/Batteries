@@ -11,7 +11,7 @@ export default class loading extends Component {
           size="large"
           style={styles.activityIndicator}
         />
-        <Text style={{color:login.textColor}}>Loading...</Text>
+        <Text style={{color:login.textColor}}>{this.props.loadingMessage}</Text>
       </View>
     );
   }

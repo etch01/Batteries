@@ -1,7 +1,7 @@
 import React from "react";
 import { Platform, Text, View, StyleSheet } from "react-native";
 import { Constants, Location, Permissions, MapView } from "expo";
-import * as firebase from 'firebase';
+import * as firebase from "firebase";
 import Head from "../Header/header";
 
 export default class Permission extends React.Component {
@@ -34,27 +34,32 @@ export default class Permission extends React.Component {
         speed: 0
       }
     ],
-    order:[],
+    order: [],
+    language: "Arabic"
   };
-  
-  getUserNameFromUID=async(uid)=>{
-    const user = firebase.database().ref('users/'+uid)
-    const data = await user.on('value',(snap)=>{
-       return snap.val().name
-    })
-    console.log(data)
-};
 
-  getAllLocations=async()=>{
+  getUserNameFromUID = async uid => {
+    const user = firebase.database().ref("users/" + uid);
+    const data = await user.on("value", snap => {
+      return snap.val().name;
+    });
+    console.log(data);
+  };
+
+  getAllLocations = async () => {
     const dataArray = [];
-    var data = await firebase.database().ref('orders/')
-    data.on("value",(snap)=>{
-      snap.forEach(item=>{
-        dataArray.push({location:item.val().location,phone:item.val().phone,user:item.val().user});
-        this.setState({order:dataArray});
-      })
-    })
-  }
+    var data = await firebase.database().ref("orders/");
+    data.on("value", snap => {
+      snap.forEach(item => {
+        dataArray.push({
+          location: item.val().location,
+          phone: item.val().phone,
+          user: item.val().user
+        });
+        this.setState({ order: dataArray });
+      });
+    });
+  };
 
   componentWillMount() {
     this.getAllLocations();
@@ -80,8 +85,9 @@ export default class Permission extends React.Component {
   };
 
   render() {
-    const {order}= this.state;
-    let text = "Waiting..";
+    const { order } = this.state;
+    let text = this.state.language == "Arabic" ? "انتظار.." : "Waiting..";
+
     let fitching;
     if (this.state.errorMessage) {
       text = this.state.errorMessage;
@@ -95,9 +101,9 @@ export default class Permission extends React.Component {
       console.log(item);
       return (
         <MapView.Marker
-        onPress={()=>this.getUserNameFromUID(item.user)}
+          onPress={() => this.getUserNameFromUID(item.user)}
           description={item.phone}
-          title='Hassan'//{this.getUserNameFromUID(item.user)}
+          title="Hassan" //{this.getUserNameFromUID(item.user)}
           key={index}
           pinColor="#8B0000"
           coordinate={item.location}
@@ -105,7 +111,7 @@ export default class Permission extends React.Component {
       );
     });
     const map = () => {
-      if (text !== "Waiting..") {
+      if (text !== "Waiting.." || "انتظار..") {
         return (
           <MapView
             style={{ flex: 1 }}
@@ -117,8 +123,10 @@ export default class Permission extends React.Component {
             }}
           >
             <MapView.Marker
-              title="YOU"
-              description="Your location !"
+              title={this.state.language == "Arabic" ? "أنت" : "You"}
+              description={
+                this.state.language == "Arabic" ? "موقعك !" : "Your location !"
+              }
               image={require("../../assets/images/user.png")}
               coordinate={this.state.location.coords}
             />
@@ -133,12 +141,16 @@ export default class Permission extends React.Component {
           </MapView>
         );
       }
-      return <Text style={styles.loadingText}>Loading...</Text>;
+      return (
+        <Text style={styles.loadingText}>
+          {this.state.language == "Arabic" ? "جار التحميل..." : "Loading..."}
+        </Text>
+      );
     };
 
     return (
       <View style={styles.container}>
-        <Head title="Map" />
+        <Head title={this.state.language == "Arabic" ? "الخريطة" : "Map"} />
         {map()}
       </View>
     );

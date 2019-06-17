@@ -13,7 +13,7 @@ import {
   NetInfo,
   Modal
 } from "react-native";
-import { Input, Button } from "react-native-elements";
+import { Button } from "react-native-elements";
 import { themeColor } from "../../../assets/theme/themeSettings";
 import firebase from "firebase";
 import { FontAwesome } from "@expo/vector-icons";
@@ -36,6 +36,7 @@ export default class SignUp extends Component {
     address: "",
     confirmed: false,
     type: "",
+    language: "Arabic"
   };
 
   signUpHandler(email, password) {
@@ -74,7 +75,8 @@ export default class SignUp extends Component {
               phone: this.state.phone,
               confirmed: this.state.confirmed,
               admin: false,
-              points:0,
+              language:this.state.language,
+              points: 0,
               gender: this.state.gender,
               type:
                 this.props.navigation.state.params.type == "" ||
@@ -93,36 +95,60 @@ export default class SignUp extends Component {
         .catch(error => {
           var errorCode = error.code;
           var errorMessage = error.message;
-          if (errorCode == "auth/weak-password") {
-            this.setState({
-              errorMessage: "Password must be 8 characters or more."
-            });
-            this.setState({ loading: false });
-          } else if (errorCode == "auth/email-already-in-use") {
-            this.setState({ errorMessage: "Email already in use." });
-            this.setState({ loading: false });
-          } else if (errorCode == "auth/invalid-email") {
-            this.setState({ errorMessage: "Invalid Email address." });
-            this.setState({ loading: false });
-          } else if (errorCode == "auth/operation-not-allowed") {
-            this.setState({ errorMessage: "Email is not activated." });
-            this.setState({ loading: false });
-          } else {
-            alert(errorMessage);
+          if (this.state.language=="English"){
+            if (errorCode == "auth/weak-password") {
+              this.setState({
+                errorMessage: "Password must be 8 characters or more."
+              });
+              this.setState({ loading: false });
+            } else if (errorCode == "auth/email-already-in-use") {
+              this.setState({ errorMessage: "Email already in use." });
+              this.setState({ loading: false });
+            } else if (errorCode == "auth/invalid-email") {
+              this.setState({ errorMessage: "Invalid Email address." });
+              this.setState({ loading: false });
+            } else if (errorCode == "auth/operation-not-allowed") {
+              this.setState({ errorMessage: "Email is not activated." });
+              this.setState({ loading: false });
+            } else {
+              alert(errorMessage);
+            }
+          }else{
+            if (errorCode == "auth/weak-password") {
+              this.setState({
+                errorMessage: "الرقم السري 8 حروف او اكثر."
+              });
+              this.setState({ loading: false });
+            } else if (errorCode == "auth/email-already-in-use") {
+              this.setState({ errorMessage: "البريد الالكتروني مستخدم." });
+              this.setState({ loading: false });
+            } else if (errorCode == "auth/invalid-email") {
+              this.setState({ errorMessage: "البريد الالكتروني غير موجود." });
+              this.setState({ loading: false });
+            } else if (errorCode == "auth/operation-not-allowed") {
+              this.setState({ errorMessage: "البريد الالكتروني غير مفعل." });
+              this.setState({ loading: false });
+            } else {
+              alert(errorMessage);
+            }
           }
-          console.log(error);
+
         });
     } else {
       //Trowing errors for required fields or password not match
       if (this.state.email == "" && this.state.password == "") {
-        this.setState({ errorMessage: "Please fill the required fields!" });
+        if (this.state.language=="English"){
+          this.setState({ errorMessage: "Please fill the required fields!" });
+        }else{
+          this.setState({ errorMessage: "من فضلك املأ الحقول المطلوبه!" });
+        }
       }
     }
   }
 
   //Gender Modal visibility switch
   setModalVisible(visible) {
-    this.setState({modalVisible:visible});
+    this.setState({ modalVisible: visible });
   }
 
   //Checking for internet Connection
@@ -138,6 +164,15 @@ export default class SignUp extends Component {
     });
   };
 
+  componentWillMount = () => {
+    this.setState({language:this.props.navigation.state.params.language});
+    if (this.props.navigation.state.params.language == "Arabic") {
+      this.setState({ gender: "النوع" });
+    } else {
+      this.setState({ gender: "Gender" });
+    }
+  };
+
   componentWillUnmount() {
     NetInfo.isConnected.removeEventListener(
       "connectionChange",
@@ -146,61 +181,102 @@ export default class SignUp extends Component {
   }
 
   render() {
+    var inputDirection = "left";
+    if (this.state.language == "Arabic") {
+      inputDirection = "right";
+    }
     return (
       <ScrollView style={styles.container}>
-
         <StatusBar barStyle="light-content" />
         <View style={styles.top}>
           <Image
             style={styles.logo}
             source={require("../../../assets/images/capture.png")}
           />
-          <Text style={styles.topText}> Create an Account </Text>
-          <Text style={styles.topSecText}>You Can Create New Account Here</Text>
+          <Text style={styles.topText}>
+            {this.state.language == "Arabic"
+              ? "انشاء حساب"
+              : "Create an Account"}
+          </Text>
+          <Text style={styles.topSecText}>
+            {this.state.language == "Arabic"
+              ? "يمكنك إنشاء حساب جديد هنا"
+              : "You Can Create New Account Here"}
+          </Text>
         </View>
         <View style={styles.middle}>
           <TextInput
             direction="rtl"
             onChangeText={val => this.setState({ name: val })}
             style={styles.inputContainer}
-            placeholder="Full Name"
+            placeholder={
+              this.state.language == "Arabic" ? "الاسم بالكامل" : "Full Name"
+            }
             placeholderTextColor="#fff"
           />
           <TextInput
             style={styles.inputContainer}
             onChangeText={val => this.setState({ email: val })}
-            placeholder="Email"
+            placeholder={
+              this.state.language == "Arabic" ? "البريد الإلكتروني" : "Email"
+            }
             placeholderTextColor="#fff"
           />
           <TextInput
-            style={styles.inputContainer}
+            style={{
+              width: width * 0.8,
+              color: "#fff",
+              borderBottomColor: "#fff",
+              borderBottomWidth: 1,
+              textAlign: inputDirection
+            }}
             onChangeText={val => this.setState({ password: val })}
             secureTextEntry={true}
-            placeholder="Password"
+            placeholder={
+              this.state.language == "Arabic" ? "كلمه السر" : "Password"
+            }
             placeholderTextColor="#fff"
           />
           <TextInput
             style={styles.inputContainer}
             onChangeText={val => this.setState({ phone: val })}
-            placeholder="Mobile"
+            placeholder={
+              this.state.language == "Arabic"
+                ? "رقم الهاتف المحمول"
+                : "Mobile number"
+            }
             placeholderTextColor="#fff"
           />
 
-          <TouchableOpacity 
-          onPress={()=>this.setModalVisible(!this.state.modalVisible)}
-          style={{flexDirection:'row',width:width*.8}}>
+          <TouchableOpacity
+            onPress={() => this.setModalVisible(!this.state.modalVisible)}
+            style={{ flexDirection: "row", width: width * 0.8 }}
+          >
             <TextInput
-              style={styles.inputContainer}
+              style={{
+                width: width * 0.8,
+                color: "#fff",
+                borderBottomColor: "#fff",
+                borderBottomWidth: 1,
+                textAlign: inputDirection
+              }}
               onChangeText={val => this.setState({ gender: val })}
               placeholder={this.state.gender}
               placeholderTextColor="#fff"
             />
-            <FontAwesome style={{marginTop:'2%',marginLeft:'-4%'}} name="angle-down" size={16} color="#fff" />
+            <FontAwesome
+              style={{ marginTop: "2%", marginLeft: "-4%" }}
+              name="angle-down"
+              size={16}
+              color="#fff"
+            />
           </TouchableOpacity>
           <TextInput
             style={styles.inputContainer}
             onChangeText={val => this.setState({ address: val })}
-            placeholder="Address"
+            placeholder={
+              this.state.language == "Arabic" ? "العنوان" : "The address"
+            }
             placeholderTextColor="#fff"
           />
         </View>
@@ -213,7 +289,9 @@ export default class SignUp extends Component {
               }
               style={styles.myButton}
             >
-              <Text style={styles.bottomText}> Sign Up </Text>
+              <Text style={styles.bottomText}>
+                {this.state.language == "Arabic" ? "تسجيل" : "Sign Up"}
+              </Text>
             </TouchableOpacity>
           ) : (
             <ActivityIndicator size="large" />
@@ -221,36 +299,55 @@ export default class SignUp extends Component {
         </View>
         <Modal
           animationType="slide"
-          style={{width:100,height:100,backgroundColor:"black"}}
+          style={{ width: 100, height: 100, backgroundColor: "black" }}
           transparent={true}
           visible={this.state.modalVisible}
           onRequestClose={() => {
-            Alert.alert('Modal has been closed.');
-          }}>
-              <View style={{
-          flex: 1,
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center'}}>
-    <View style={{
-            height:"30%",
-            justifyContent:"space-around",
-            width:"100%",
-            paddingLeft:"20%",
-            paddingRight:"20%",
-            backgroundColor:"rgb(255, 255, 255, 0.8)",
-            }}>
-      <Button  buttonStyle={{backgroundColor:"#ffffff"}} titleStyle={{color:'black'}} title='Male' onPress={()=>{
-        this.setModalVisible(!this.state.modalVisible);
-        this.setState({gender:"Male"})
-      }}/>
-      <Button buttonStyle={{backgroundColor:"#ffffff"}} title='Female' titleStyle={{color:'black'}} onPress={()=>{
-        this.setModalVisible(!this.state.modalVisible);
-        this.setState({gender:"Female"})
-        }}/>
-
-    </View>
+            Alert.alert("Modal has been closed.");
+          }}
+        >
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            <View
+              style={{
+                height: "30%",
+                justifyContent: "space-around",
+                width: "100%",
+                paddingLeft: "20%",
+                paddingRight: "20%",
+                backgroundColor: "rgb(255, 255, 255, 0.8)"
+              }}
+            >
+              <Button
+                buttonStyle={{ backgroundColor: "#ffffff" }}
+                titleStyle={{ color: "black" }}
+                title={this.state.language == "Arabic" ? "ذكر" : "Male"}
+                onPress={() => {
+                  this.setModalVisible(!this.state.modalVisible);
+                  this.state.language == "Arabic"
+                    ? this.setState({ gender: "ذكر" })
+                    : this.setState({ gender: "Male" });
+                }}
+              />
+              <Button
+                buttonStyle={{ backgroundColor: "#ffffff" }}
+                title={this.state.language == "Arabic" ? "أنثى" : "Female"}
+                titleStyle={{ color: "black" }}
+                onPress={() => {
+                  this.setModalVisible(!this.state.modalVisible);
+                  this.state.language == "Arabic"
+                    ? this.setState({ gender: "أنثي" })
+                    : this.setState({ gender: "Female" });
+                }}
+              />
             </View>
+          </View>
         </Modal>
       </ScrollView>
     );
@@ -280,10 +377,10 @@ const styles = StyleSheet.create({
   },
   logo: {
     alignItems: "center",
-      flex: 1,
-      width: 100,
-      height: 100,
-      resizeMode: 'contain'
+    flex: 1,
+    width: 100,
+    height: 100,
+    resizeMode: "contain"
   },
   middle: {
     width: width,

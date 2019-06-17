@@ -13,75 +13,107 @@ import {
 import Header from "../Header/miniHeader";
 import { themeColor } from "../../assets/theme/themeSettings";
 import { Feather, Ionicons } from "@expo/vector-icons";
-import firebase from 'firebase';
+import firebase from "firebase";
 const { height, width } = Dimensions.get("window");
 
 export default class cart extends Component {
   state = {
-    products: [
-    ],
-    totalPoints:0,
-    minPoints:0,
+    products: [],
+    totalPoints: 0,
+    minPoints: 0,
+    language: "Arabic"
   };
 
-  componentWillMount=()=>{
-    var pointsArray = []
-    firebase.database().ref("settings/").on("value",snap=>{
-      this.setState({minPoints:snap.val().minPoints})
-    })
-    let pts = this.props.navigation.state.params.cart.map(item=>pointsArray.push(item.rate))
-    this.setState({products:this.props.navigation.state.params.cart,totalPoints:pointsArray.reduce((a, b) => a + b, 0)});
-  }
+  componentWillMount = () => {
+    this.getLanguage();
+    var pointsArray = [];
+    firebase
+      .database()
+      .ref("settings/")
+      .on("value", snap => {
+        this.setState({ minPoints: snap.val().minPoints });
+      });
+    let pts = this.props.navigation.state.params.cart.map(item =>
+      pointsArray.push(item.rate)
+    );
+    this.setState({
+      products: this.props.navigation.state.params.cart,
+      totalPoints: pointsArray.reduce((a, b) => a + b, 0)
+    });
+  };
+  
+      //Get user language
+      getLanguage = () =>{
+        const uid = firebase.auth().currentUser.uid;
+        firebase.database().ref("users/"+uid).on("value",
+        snap=>{
+          var language = snap.val().language;
+          this.setState({language});
+      })
+    }
+
   //Plus button
-  increaseQuantityHandler=(currentQuantity,itemName,index)=>{
-    const {products} = this.state;
+  increaseQuantityHandler = (currentQuantity, itemName, index) => {
+    const { products } = this.state;
     const newArray = [...products];
     newArray[index].quantity = currentQuantity + 1;
     const oldPoints = this.state.totalPoints;
     let neoPoints = newArray[index].rate + oldPoints;
-    this.setState({products:newArray,totalPoints:neoPoints});
-  }
+    this.setState({ products: newArray, totalPoints: neoPoints });
+  };
   //Minus button
-  decreaseQuantityHandler=(currentQuantity,itemName,index)=>{
-    const {products} = this.state;
+  decreaseQuantityHandler = (currentQuantity, itemName, index) => {
+    const { products } = this.state;
     const newArray = [...products];
     const oldPoints = this.state.totalPoints;
-    if(oldPoints>newArray[index].rate){
-      var neoPoints = oldPoints - newArray[index].rate ;
+    if (oldPoints > newArray[index].rate) {
+      var neoPoints = oldPoints - newArray[index].rate;
     }
-    if (newArray[index].quantity!=1){
+    if (newArray[index].quantity != 1) {
       newArray[index].quantity = currentQuantity - 1;
-    }else{
-      newArray.splice(index,1);
+    } else {
+      newArray.splice(index, 1);
     }
-    this.setState({products:newArray,totalPoints:neoPoints});
-  }
+    this.setState({ products: newArray, totalPoints: neoPoints });
+  };
 
   render() {
-    const {products} = this.state;
-    if(this.state.products.length==0){
+    const { products } = this.state;
+    if (this.state.products.length == 0) {
       return (
         <View>
-        <Header title="Cart" 
-        backButton={()=>{
-          this.props.navigation.goBack();
-        }}
-       />
-        <View style={{alignItems:'center',color:themeColor,justifyContent:'center'}}>
-        <Text style={{fontSize:20,fontWeight:'bold'}}>The cart is empty.</Text>
-
+          <Header
+            title={this.state.language == "Arabic" ? "عربة التسوق" : "Cart"}
+            backButton={() => {
+              this.props.navigation.goBack();
+              this.props.navigation.state.params.refresh(this.state.products);
+            }}
+          />
+          <View
+            style={{
+              alignItems: "center",
+              color: themeColor,
+              justifyContent: "center"
+            }}
+          >
+            <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+              {this.state.language == "Arabic"
+                ? "عربة التسوق فارغة."
+                : "The cart is empty."}
+            </Text>
+          </View>
         </View>
-        </View>
-        )
+      );
     }
     return (
       <View>
         <Header
-          title="Cart"
+          title={this.state.language == "Arabic" ? "عربة التسوق" : "Cart"}
           backButton={() => {
-            this.props.navigation.navigate('Drawer')
-          this.props.navigation.state.params.refresh(this.state.products)
-        }}
+            console.log(this.state.products);
+            this.props.navigation.navigate("Drawer");
+            this.props.navigation.state.params.refresh(this.state.products);
+          }}
         />
         <ScrollView>
           <FlatList
@@ -89,10 +121,7 @@ export default class cart extends Component {
             renderItem={({ item, index }) => (
               <View style={styles.cartCon}>
                 <View style={styles.imageCon}>
-                  <Image
-                    style={styles.image}
-                    source={{uri:item.image}}
-                  />
+                  <Image style={styles.image} source={{ uri: item.image }} />
                 </View>
                 <View style={styles.productCon}>
                   <View style={styles.productData}>
@@ -109,7 +138,13 @@ export default class cart extends Component {
                       }}
                     >
                       <TouchableOpacity
-                      onPress={()=>this.decreaseQuantityHandler(item.quantity,item.name,index)}
+                        onPress={() =>
+                          this.decreaseQuantityHandler(
+                            item.quantity,
+                            item.name,
+                            index
+                          )
+                        }
                       >
                         <Feather
                           name="minus-circle"
@@ -117,8 +152,18 @@ export default class cart extends Component {
                           color={themeColor}
                         />
                       </TouchableOpacity>
-                      <Text style={{ paddingHorizontal: 12 }}>{item.quantity}</Text>
-                      <TouchableOpacity onPress={()=>this.increaseQuantityHandler(item.quantity,item.name,index)}>
+                      <Text style={{ paddingHorizontal: 12 }}>
+                        {item.quantity}
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() =>
+                          this.increaseQuantityHandler(
+                            item.quantity,
+                            item.name,
+                            index
+                          )
+                        }
+                      >
                         <Feather
                           name="plus-circle"
                           size={32}
@@ -138,18 +183,20 @@ export default class cart extends Component {
                         <Ionicons name="md-cart" size={24} color="grey" />
                       </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={styles.myButton}
-                    onPress={()=>{
-                      if(this.state.minPoints<=this.state.totalPoints){
-                        this.props.navigation.navigate('Location',products)
-                      }
-                      else{
-                        alert("The minimum points are: "+this.state.minPoints)
-                      }
-                    }}
+                    <TouchableOpacity
+                      style={styles.myButton}
+                      onPress={() => {
+                        if (this.state.minPoints <= this.state.totalPoints) {
+                          this.props.navigation.navigate("Location", products);
+                        } else {
+                          alert(
+                            "The minimum points are: " + this.state.minPoints
+                          );
+                        }
+                      }}
                     >
                       <Text style={{ color: themeColor, fontWeight: "800" }}>
-                        Execute
+                      {this.state.language == "Arabic" ? "تأكيد" : "Execute"}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -213,5 +260,5 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center"
-  },
+  }
 });
